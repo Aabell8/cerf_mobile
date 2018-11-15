@@ -195,6 +195,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
               children: <Widget>[
                 const SizedBox(height: 24.0),
                 new TextFormField(
+                  key: new Key('address'),
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Address',
@@ -210,6 +211,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   children: <Widget>[
                     new Expanded(
                       child: new TextFormField(
+                        key: new Key('city'),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'City',
@@ -277,6 +279,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   children: <Widget>[
                     new Text("All day"),
                     new Switch(
+                        key: new Key('all_day'),
                         value: task.isAllDay,
                         onChanged: (bool value) {
                           setState(() {
@@ -304,6 +307,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                         new Container(
                           width: 50.0,
                           child: new TextFormField(
+                            key: new Key('hour'),
                             textAlign: TextAlign.center,
                             controller: _hourController,
                             keyboardType: TextInputType.number,
@@ -322,6 +326,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                         new Container(
                           width: 50.0,
                           child: new TextFormField(
+                            key: new Key('minute'),
                             textAlign: TextAlign.center,
                             controller: _minuteController,
                             keyboardType: TextInputType.number,
@@ -373,6 +378,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   children: <Widget>[
                     new Expanded(
                       child: new RaisedButton.icon(
+                        key: new Key('createTaskButton'),
                         icon: const Icon(Icons.add, size: 18.0),
                         label: const Text('CREATE TASK'),
                         color: Theme.of(context).primaryColor,
