@@ -38,6 +38,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<Task> _tasks = <Task>[];
+  bool _started = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tasks = testTasks.toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,6 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: new Material(
                       child: new InkWell(
                         onTap: () {
+                          // _started = true;
                           print("clicked Start");
                         },
                         child: new Container(
@@ -103,6 +113,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: new SchedulePage(
         createNewTask: _createNewTask,
+        tasks: _tasks,
+        isStarted: _started,
       ),
     );
   }

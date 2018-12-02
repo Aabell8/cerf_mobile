@@ -30,6 +30,36 @@ class Task {
     this.isAllDay: false,
   });
 
+  Task copyWith({
+    id,
+    windowStart,
+    windowEnd,
+    duration,
+    address,
+    city,
+    province,
+    lat,
+    lng,
+    status,
+    notes,
+    isAllDay,
+  }) {
+    return Task(
+      id: id ?? this.id,
+      windowStart: windowStart ?? this.windowStart,
+      windowEnd: windowEnd ?? this.windowEnd,
+      duration: duration ?? this.duration,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      province: province ?? this.province,
+      lat: lat ?? this.lat,
+      lng: lng ?? this.lng,
+      status: status ?? this.status,
+      notes: notes ?? this.notes,
+      isAllDay: isAllDay ?? this.isAllDay,
+    );
+  }
+
   static String timeOfDayFormat(
       TimeOfDay timeStart, TimeOfDay timeEnd, bool isAllDay) {
     // Change static date

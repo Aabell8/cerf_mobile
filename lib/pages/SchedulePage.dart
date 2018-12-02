@@ -12,12 +12,13 @@ import 'package:cerf_mobile/model/Task.dart';
 import 'package:cerf_mobile/components/TaskListItem.dart';
 
 class SchedulePage extends StatefulWidget {
-  const SchedulePage({
-    Key key,
-    this.createNewTask,
-  }) : super(key: key);
+  const SchedulePage(
+      {Key key, this.createNewTask, this.isStarted = false, this.tasks})
+      : super(key: key);
 
   final TimeCallback createNewTask;
+  final bool isStarted;
+  final List<Task> tasks;
 
   @override
   _SchedulePageState createState() => new _SchedulePageState();
@@ -26,8 +27,6 @@ class SchedulePage extends StatefulWidget {
 class _SchedulePageState extends State<SchedulePage> {
   static final GlobalKey<ScaffoldState> scaffoldKey =
       new GlobalKey<ScaffoldState>();
-
-  final List<Task> _items = testTasks.toList();
 
   Widget buildListTile(Task item) {
     return new TaskListItem(item, context);
@@ -38,27 +37,39 @@ class _SchedulePageState extends State<SchedulePage> {
       if (newIndex > oldIndex) {
         newIndex -= 1;
       }
-      final Task item = _items.removeAt(oldIndex);
-      _items.insert(newIndex, item);
+      final Task item = widget.tasks.removeAt(oldIndex);
+      widget.tasks.insert(newIndex, item);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    print(widget.tasks.length);
     return new Scaffold(
       body: new Scrollbar(
-        child: new ReorderableListView(
-          onReorder: _onReorder,
-          scrollDirection: Axis.vertical,
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          children: _items.map(buildListTile).toList(),
-        ),
+        child: widget.isStarted
+            ? new Column(
+                children: <Widget>[
+                  Text("Test column"),
+                  new ListView(
+                    scrollDirection: Axis.vertical,
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    children: widget.tasks.map(buildListTile).toList(),
+                  )
+                ],
+              )
+            : new ReorderableListView(
+                onReorder: _onReorder,
+                scrollDirection: Axis.vertical,
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                children: widget.tasks.map(buildListTile).toList(),
+              ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           widget.createNewTask().then((item) {
             if (item != null) {
-              _items.add(item);
+              widget.tasks.add(item);
               print("Added item");
             }
           });
