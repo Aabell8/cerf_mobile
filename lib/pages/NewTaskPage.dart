@@ -66,13 +66,13 @@ class _NewTaskPageState extends State<NewTaskPage> {
     return null;
   }
 
-  String _validateProvince(String value) {
-    value = value.trim();
-    if (value.isEmpty) return 'Required.';
-    final RegExp nameExp = RegExp(r'^[A-Za-z ]+$');
-    if (!nameExp.hasMatch(value)) return 'A-Z only';
-    return null;
-  }
+  // String _validateProvince(String value) {
+  //   value = value.trim();
+  //   if (value.isEmpty) return 'Required.';
+  //   final RegExp nameExp = RegExp(r'^[A-Za-z ]+$');
+  //   if (!nameExp.hasMatch(value)) return 'A-Z only';
+  //   return null;
+  // }
 
   void _handleSubmitted() {
     final FormState form = _formKey.currentState;
