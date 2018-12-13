@@ -8,25 +8,25 @@ void main() {
   testWidgets(
       'non-empty email and password, valid account, calls sign in, succeeds',
       (WidgetTester tester) async {
-    NewTaskPage newTaskPage = new NewTaskPage();
+    NewTaskPage newTaskPage = NewTaskPage();
     await tester.pumpWidget(buildTestableWidget(newTaskPage));
 
-    Finder addressField = find.byKey(new Key('address'));
+    Finder addressField = find.byKey(Key('address'));
     await tester.enterText(addressField, '176 St George St.');
 
-    Finder cityField = find.byKey(new Key('city'));
+    Finder cityField = find.byKey(Key('city'));
     await tester.enterText(cityField, 'London');
 
     await tester.tap(find.byType(Switch).first);
     await tester.pumpAndSettle();
 
-    Finder hourField = find.byKey(new Key('hour'));
+    Finder hourField = find.byKey(Key('hour'));
     await tester.enterText(hourField, '12');
 
-    Finder minuteField = find.byKey(new Key('minute'));
+    Finder minuteField = find.byKey(Key('minute'));
     await tester.enterText(minuteField, '12');
 
-    Finder createTaskButton = find.byKey(new Key('createTaskButton'));
+    Finder createTaskButton = find.byKey(Key('createTaskButton'));
     await tester.tap(createTaskButton);
 
     await tester.pump();
@@ -35,6 +35,6 @@ void main() {
 
 Widget buildTestableWidget(Widget widget) {
   // https://docs.flutter.io/flutter/widgets/MediaQuery-class.html
-  return new MediaQuery(
-      data: new MediaQueryData(), child: new MaterialApp(home: widget));
+  return MediaQuery(
+      data: MediaQueryData(), child: MaterialApp(home: widget));
 }

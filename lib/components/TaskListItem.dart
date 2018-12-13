@@ -5,13 +5,13 @@ import 'package:cerf_mobile/model/Task.dart';
 class TaskListItem extends ListTile {
   TaskListItem(Task item, BuildContext context)
       : super(
-          key: new Key(item.id),
+          key: Key(item.id),
           isThreeLine: true,
-          title: new Text(
+          title: Text(
             '${item.address}',
             overflow: TextOverflow.ellipsis,
           ),
-          subtitle: new Text(
+          subtitle: Text(
             '${item.duration} minutes ${Task.timeOfDayFormat(item.windowStart, item.windowEnd, item.isAllDay)}',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -19,8 +19,8 @@ class TaskListItem extends ListTile {
           onTap: () {
             Navigator.push(
               context,
-              new MaterialPageRoute(
-                builder: (BuildContext context) => new TaskDetailsPage(task: item),
+              MaterialPageRoute(
+                builder: (BuildContext context) => TaskDetailsPage(task: item),
               ),
             );
           },

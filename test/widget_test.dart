@@ -13,6 +13,6 @@ import 'package:cerf_mobile/main.dart';
 void main() {
   testWidgets('Creates basic app without crashing', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(new MyApp());
+    await tester.pumpWidget(MyApp());
   });
 }

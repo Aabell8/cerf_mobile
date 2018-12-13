@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class DetailsButton extends StatelessWidget {
-  const DetailsButton({Key key, this.icon, this.text, this.onPressed})
+  DetailsButton({Key key, this.icon, this.text, this.onPressed})
       : super(key: key);
 
   final IconData icon;
@@ -11,19 +11,19 @@ class DetailsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
-    return new Expanded(
-      child: new Column(
+    return Expanded(
+      child: Column(
         children: <Widget>[
-          new SizedBox(
+          SizedBox(
             width: 72.0,
             height: 72.0,
-            child: new IconButton(
-              icon: new Icon(icon, size: 40.0),
+            child: IconButton(
+              icon: Icon(icon, size: 40.0),
               color: themeData.primaryColor,
               onPressed: onPressed,
             ),
           ),
-          new Text(text),
+          Text(text),
         ],
       ),
     );

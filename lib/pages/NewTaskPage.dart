@@ -23,30 +23,29 @@ class NewTaskPage extends StatefulWidget {
   static const String routeName = '/newTask';
 
   @override
-  _NewTaskPageState createState() => new _NewTaskPageState();
+  _NewTaskPageState createState() => _NewTaskPageState();
 }
 
 class _NewTaskPageState extends State<NewTaskPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _submitting = false;
 
   final _hourController = TextEditingController(text: '0');
   final _minuteController = TextEditingController(text: '00');
 
-  Task task = new Task(
-    windowStart: new TimeOfDay(hour: 9, minute: 0),
-    windowEnd: new TimeOfDay(hour: 17, minute: 0),
+  Task task = Task(
+    windowStart: TimeOfDay(hour: 9, minute: 0),
+    windowEnd: TimeOfDay(hour: 17, minute: 0),
     province: "ON",
   );
 
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState
-        .showSnackBar(new SnackBar(content: new Text(value)));
+    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
   }
 
   bool _autovalidate = false;
 
-  final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   String formatCity(String s) => s[0].toUpperCase() + s.substring(1);
 
@@ -87,7 +86,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
       });
     } else {
       form.save();
-      final uri = new Uri(
+      final uri = Uri(
         scheme: "https",
         host: "maps.googleapis.com",
         path: "/maps/api/geocode/json",
@@ -135,7 +134,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   location = results[0]["geometry"]["location"];
                   task.lat = location["lat"];
                   task.lng = location["lng"];
-                  task.id = new Random().nextInt(10000).toString();
+                  task.id = Random().nextInt(10000).toString();
                   Navigator.of(context).pop(task);
                 }
                 setState(() {
@@ -179,23 +178,23 @@ class _NewTaskPageState extends State<NewTaskPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: new AppBar(
-        title: const Text('New Task'),
+      appBar: AppBar(
+        title: Text('New Task'),
       ),
-      body: new SafeArea(
+      body: SafeArea(
         top: false,
         bottom: false,
-        child: new Form(
+        child: Form(
           key: _formKey,
           autovalidate: _autovalidate,
-          child: new SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: new Column(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 const SizedBox(height: 24.0),
-                new TextFormField(
-                  key: new Key('address'),
+                TextFormField(
+                  key: Key('address'),
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Address',
@@ -209,9 +208,9 @@ class _NewTaskPageState extends State<NewTaskPage> {
                 const SizedBox(height: 24.0),
                 Row(
                   children: <Widget>[
-                    new Expanded(
-                      child: new TextFormField(
-                        key: new Key('city'),
+                    Expanded(
+                      child: TextFormField(
+                        key: Key('city'),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'City',
@@ -226,7 +225,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                     ),
                     const SizedBox(width: 32.0),
                     Center(
-                      child: new DropdownButton<String>(
+                      child: DropdownButton<String>(
                         isDense: true,
                         items: <String>[
                           'ON',
@@ -243,9 +242,9 @@ class _NewTaskPageState extends State<NewTaskPage> {
                           'NT',
                           'NU'
                         ].map((String value) {
-                          return new DropdownMenuItem<String>(
+                          return DropdownMenuItem<String>(
                             value: value,
-                            child: new Text(value),
+                            child: Text(value),
                           );
                         }).toList(),
                         value: task.province,
@@ -257,8 +256,8 @@ class _NewTaskPageState extends State<NewTaskPage> {
                       ),
                     ),
                     const SizedBox(width: 16.0),
-                    // new Expanded(
-                    //   child: new TextFormField(
+                    // Expanded(
+                    //   child: TextFormField(
                     //     decoration: const InputDecoration(
                     //       border: OutlineInputBorder(),
                     //       labelText: 'Province',
@@ -274,12 +273,12 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   ],
                 ),
                 const SizedBox(height: 24.0),
-                new Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    new Text("All day"),
-                    new Switch(
-                        key: new Key('all_day'),
+                    Text("All day"),
+                    Switch(
+                        key: Key('all_day'),
                         value: task.isAllDay,
                         onChanged: (bool value) {
                           setState(() {
@@ -288,26 +287,37 @@ class _NewTaskPageState extends State<NewTaskPage> {
                         }),
                   ],
                 ),
-                task.isAllDay ? new Container() : windowComponents(context),
+                task.isAllDay ? Container() : windowComponents(context),
                 const SizedBox(height: 24.0),
-                new Text(
+                Text(
                   "Duration",
                   textAlign: TextAlign.center,
                 ),
-                new Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: <Widget>[
-                    new IconButton(
-                      icon: new Icon(Icons.remove_circle),
+                    IconButton(
+                      icon: Icon(Icons.remove_circle),
                       iconSize: 24.0,
-                      onPressed: () {},
+                      onPressed: () {
+                        int minuteVal = int.tryParse(_minuteController.text);
+                        if (minuteVal != null && minuteVal > 0) {
+                          _minuteController.text = (minuteVal - 1).toString();
+                        } else {
+                          int hourVal = int.tryParse(_hourController.text);
+                          if (hourVal != null && hourVal > 0) {
+                            _hourController.text = (hourVal - 1).toString();
+                            _minuteController.text = (59).toString();
+                          }
+                        }
+                      },
                     ),
-                    new Row(
+                    Row(
                       children: <Widget>[
-                        new Container(
+                        Container(
                           width: 50.0,
-                          child: new TextFormField(
-                            key: new Key('hour'),
+                          child: TextFormField(
+                            key: Key('hour'),
                             textAlign: TextAlign.center,
                             controller: _hourController,
                             keyboardType: TextInputType.number,
@@ -322,11 +332,11 @@ class _NewTaskPageState extends State<NewTaskPage> {
                             },
                           ),
                         ),
-                        new Text(":"),
-                        new Container(
+                        Text(":"),
+                        Container(
                           width: 50.0,
-                          child: new TextFormField(
-                            key: new Key('minute'),
+                          child: TextFormField(
+                            key: Key('minute'),
                             textAlign: TextAlign.center,
                             controller: _minuteController,
                             keyboardType: TextInputType.number,
@@ -343,26 +353,32 @@ class _NewTaskPageState extends State<NewTaskPage> {
                         ),
                       ],
                     ),
-                    new IconButton(
-                      icon: new Icon(Icons.add_circle),
+                    IconButton(
+                      icon: Icon(Icons.add_circle),
                       iconSize: 24.0,
                       onPressed: () {
                         int minuteVal = int.tryParse(_minuteController.text);
-                        if (minuteVal != null && minuteVal < 59) {
-                          _minuteController.text = (minuteVal + 1).toString();
-                        } else {
-                          _minuteController.text = (minuteVal - 59).toString();
+                        minuteVal++;
+                        if (minuteVal != null && minuteVal < 60) {
+                          _minuteController.text = (minuteVal).toString();
+                        } else if (minuteVal >= 60) {
+                          int hourIncrement = (minuteVal / 60).floor();
+                          minuteVal -= hourIncrement * 60;
                           int hourVal = int.tryParse(_hourController.text);
                           if (hourVal != null) {
-                            _hourController.text = (hourVal + 1).toString();
+                            _hourController.text =
+                                (hourVal + hourIncrement).toString();
+                          } else {
+                            _hourController.text = (hourIncrement).toString();
                           }
+                          _minuteController.text = (minuteVal).toString();
                         }
                       },
                     ),
                   ],
                 ),
                 const SizedBox(height: 24.0),
-                new TextFormField(
+                TextFormField(
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'Notes about task',
@@ -374,11 +390,11 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   maxLines: 3,
                 ),
                 const SizedBox(height: 24.0),
-                new Row(
+                Row(
                   children: <Widget>[
-                    new Expanded(
-                      child: new RaisedButton.icon(
-                        key: new Key('createTaskButton'),
+                    Expanded(
+                      child: RaisedButton.icon(
+                        key: Key('createTaskButton'),
                         icon: const Icon(Icons.add, size: 18.0),
                         label: const Text('CREATE TASK'),
                         color: Theme.of(context).primaryColor,
@@ -419,9 +435,9 @@ class _NewTaskPageState extends State<NewTaskPage> {
     return Column(
       children: <Widget>[
         const SizedBox(height: 24.0),
-        new Text("This task can be started between:"),
+        Text("This task can be started between:"),
         const SizedBox(height: 12.0),
-        new TaskWindowPicker(
+        TaskWindowPicker(
           windowStart: task.windowStart,
           windowEnd: task.windowEnd,
           selectStartTime: _selectStartTime,

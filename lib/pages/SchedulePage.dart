@@ -21,15 +21,15 @@ class SchedulePage extends StatefulWidget {
   final List<Task> tasks;
 
   @override
-  _SchedulePageState createState() => new _SchedulePageState();
+  _SchedulePageState createState() => _SchedulePageState();
 }
 
 class _SchedulePageState extends State<SchedulePage> {
   static final GlobalKey<ScaffoldState> scaffoldKey =
-      new GlobalKey<ScaffoldState>();
+      GlobalKey<ScaffoldState>();
 
   Widget buildListTile(Task item) {
-    return new TaskListItem(item, context);
+    return TaskListItem(item, context);
   }
 
   void _onReorder(int oldIndex, int newIndex) {
@@ -44,21 +44,21 @@ class _SchedulePageState extends State<SchedulePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.tasks.length);
-    return new Scaffold(
-      body: new Scrollbar(
+    // print(widget.tasks.length);
+    return Scaffold(
+      body: Scrollbar(
         child: widget.isStarted
-            ? new Column(
+            ? Column(
                 children: <Widget>[
                   Text("Test column"),
-                  new ListView(
+                  ListView(
                     scrollDirection: Axis.vertical,
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     children: widget.tasks.map(buildListTile).toList(),
                   )
                 ],
               )
-            : new ReorderableListView(
+            : ReorderableListView(
                 onReorder: _onReorder,
                 scrollDirection: Axis.vertical,
                 padding: const EdgeInsets.symmetric(vertical: 8.0),

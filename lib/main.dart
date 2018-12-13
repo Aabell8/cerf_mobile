@@ -9,16 +9,16 @@ import 'dart:async';
 
 void main() {
   // MapView.setApiKey(Strings.gMapsAPI);
-  runApp(new MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'Cerf',
       debugShowCheckedModeBanner: false,
-      theme: new ThemeData(
+      theme: ThemeData(
         // brightness: Brightness.dark,
         primarySwatch: AppColors.greenBlue,
         accentColor: AppColors.blueAccent,
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         // primaryColorBrightness: Brightness.dark,
         secondaryHeaderColor: AppColors.greenBlue,
       ),
-      home: new MyHomePage(),
+      home: MyHomePage(),
     );
   }
 }
@@ -52,22 +52,22 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Schedule"),
-        bottom: new PreferredSize(
-          preferredSize: const Size.fromHeight(48.0),
-          child: new Material(
-            child: new Row(
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(48.0),
+          child: Material(
+            child: Row(
               children: <Widget>[
-                new Expanded(
-                  child: new Container(
-                    child: new Material(
-                      child: new InkWell(
+                Expanded(
+                  child: Container(
+                    child: Material(
+                      child: InkWell(
                         onTap: () {
                           print("clicked Optimize");
                         },
-                        child: new Container(
+                        child: Container(
                           height: 48.0,
-                          child: new Center(
-                            child: new Text(
+                          child: Center(
+                            child: Text(
                               "Optimize",
                               style: TextStyle(
                                 color: Colors.purpleAccent[700],
@@ -81,18 +81,18 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Colors.white,
                   ),
                 ),
-                new Expanded(
-                  child: new Container(
-                    child: new Material(
-                      child: new InkWell(
+                Expanded(
+                  child: Container(
+                    child: Material(
+                      child: InkWell(
                         onTap: () {
                           // _started = true;
                           print("clicked Start");
                         },
-                        child: new Container(
+                        child: Container(
                           height: 48.0,
-                          child: new Center(
-                            child: new Text(
+                          child: Center(
+                            child: Text(
                               "Start",
                               style: TextStyle(
                                 color: Colors.greenAccent[700],
@@ -111,7 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      body: new SchedulePage(
+      body: SchedulePage(
         createNewTask: _createNewTask,
         tasks: _tasks,
         isStarted: _started,
@@ -122,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<Task> _createNewTask() async {
     return await Navigator.push(
         context,
-        new MaterialPageRoute(
-            builder: (BuildContext context) => new NewTaskPage()));
+        MaterialPageRoute(
+            builder: (BuildContext context) => NewTaskPage()));
   }
 }

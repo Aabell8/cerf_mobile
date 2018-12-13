@@ -15,29 +15,29 @@ class DetailsItem extends StatelessWidget {
     final ThemeData themeData = Theme.of(context);
     final List<Widget> columnChildren = lines
         .sublist(0, lines.length - 1)
-        .map((String line) => new Text(line))
+        .map((String line) => Text(line))
         .toList();
     columnChildren
-        .add(new Text(lines.last, style: themeData.textTheme.caption));
+        .add(Text(lines.last, style: themeData.textTheme.caption));
 
     final List<Widget> rowChildren = <Widget>[
-      new Expanded(
-          child: new Column(
+      Expanded(
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: columnChildren))
     ];
     if (icon != null) {
-      rowChildren.add(new SizedBox(
+      rowChildren.add(SizedBox(
           width: 72.0,
-          child: new IconButton(
-              icon: new Icon(icon),
+          child: IconButton(
+              icon: Icon(icon),
               color: themeData.primaryColor,
               onPressed: onPressed)));
     }
-    return new MergeSemantics(
-      child: new Padding(
+    return MergeSemantics(
+      child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: new Row(
+          child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: rowChildren)),
     );
