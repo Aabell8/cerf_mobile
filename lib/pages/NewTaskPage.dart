@@ -301,13 +301,16 @@ class _NewTaskPageState extends State<NewTaskPage> {
                       iconSize: 24.0,
                       onPressed: () {
                         int minuteVal = int.tryParse(_minuteController.text);
-                        if (minuteVal != null && minuteVal > 0) {
-                          _minuteController.text = (minuteVal - 1).toString();
+                        if (minuteVal != null && minuteVal >= 15) {
+                          _minuteController.text = (minuteVal - 15).toString();
                         } else {
                           int hourVal = int.tryParse(_hourController.text);
                           if (hourVal != null && hourVal > 0) {
                             _hourController.text = (hourVal - 1).toString();
-                            _minuteController.text = (59).toString();
+                            _minuteController.text =
+                                ((minuteVal - 15) % 60).toString();
+                          } else {
+                            _minuteController.text = 0.toString();
                           }
                         }
                       },
@@ -358,7 +361,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                       iconSize: 24.0,
                       onPressed: () {
                         int minuteVal = int.tryParse(_minuteController.text);
-                        minuteVal++;
+                        minuteVal += 15;
                         if (minuteVal != null && minuteVal < 60) {
                           _minuteController.text = (minuteVal).toString();
                         } else if (minuteVal >= 60) {
