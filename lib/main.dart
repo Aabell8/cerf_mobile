@@ -1,24 +1,28 @@
 import 'package:flutter/material.dart';
+
 import 'package:cerf_mobile/pages/SchedulePage.dart';
 import 'package:cerf_mobile/constants/colors.dart';
+import 'package:cerf_mobile/services/auth.dart';
 
-void main() {
-  // MapView.setApiKey(Strings.gMapsAPI);
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // final Auth auth = Auth();
+    // auth
+    //     .loginWithEmailAndPassword("Austin6@gmail.com", "Testing123")
+    //     .then((res) => print(res));
+
     return MaterialApp(
       title: 'Cerf',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // brightness: Brightness.dark,
         primarySwatch: AppColors.greenBlue,
         accentColor: AppColors.blueAccent,
         buttonColor: AppColors.greenBlue,
         buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+        // brightness: Brightness.dark,
         // primaryColorBrightness: Brightness.dark,
         secondaryHeaderColor: AppColors.greenBlue,
       ),

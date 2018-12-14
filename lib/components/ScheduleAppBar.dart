@@ -1,3 +1,4 @@
+import 'package:cerf_mobile/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class ScheduleAppBar extends AppBar {
@@ -22,7 +23,8 @@ class ScheduleAppBar extends AppBar {
                               child: Text(
                                 "Optimize",
                                 style: TextStyle(
-                                  color: Colors.purpleAccent[700],
+                                  color: AppColors.blueAccent,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
@@ -47,7 +49,8 @@ class ScheduleAppBar extends AppBar {
                               child: Text(
                                 "Start",
                                 style: TextStyle(
-                                  color: Colors.greenAccent[700],
+                                  color: AppColors.greenBlue,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
