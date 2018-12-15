@@ -1,3 +1,5 @@
+import 'package:cerf_mobile/pages/RootPage.dart';
+import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cerf_mobile/pages/SchedulePage.dart';
@@ -20,19 +22,22 @@ class MyApp extends StatelessWidget {
     // });
     // auth.currentUser().then((res) => print(res));
 
-    return MaterialApp(
-      title: 'Cerf',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: AppColors.greenBlue,
-        accentColor: AppColors.blueAccent,
-        buttonColor: AppColors.greenBlue,
-        buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
-        // brightness: Brightness.dark,
-        // primaryColorBrightness: Brightness.dark,
-        secondaryHeaderColor: AppColors.greenBlue,
+    return AuthProvider(
+      auth: Auth(),
+      child: MaterialApp(
+        title: 'Cerf',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: AppColors.greenBlue,
+          accentColor: AppColors.blueAccent,
+          buttonColor: AppColors.greenBlue,
+          buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+          // brightness: Brightness.dark,
+          // primaryColorBrightness: Brightness.dark,
+          secondaryHeaderColor: AppColors.greenBlue,
+        ),
+        home: RootPage(),
       ),
-      home: SchedulePage(),
     );
   }
 }

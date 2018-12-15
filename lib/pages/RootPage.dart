@@ -1,8 +1,8 @@
 import 'package:cerf_mobile/pages/SchedulePage.dart';
+import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
 
 class RootPage extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() => _RootPageState();
 }
@@ -19,13 +19,13 @@ class _RootPageState extends State<RootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // var auth = AuthProvider.of(context).auth;
-    // auth.currentUser().then((userId) {
-    //   setState(() {
-    //     authStatus =
-    //         userId == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
-    //   });
-    // });
+    var auth = AuthProvider.of(context).auth;
+    auth.currentUser().then((userId) {
+      setState(() {
+        authStatus =
+            userId == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
+      });
+    });
   }
 
   void _signedIn() {
@@ -47,12 +47,12 @@ class _RootPageState extends State<RootPage> {
         return _buildWaitingScreen();
       case AuthStatus.notSignedIn:
         return SchedulePage(
-          // onSignedIn: _signedIn,
-        );
+            // onSignedIn: _signedIn,
+            );
       case AuthStatus.signedIn:
         return SchedulePage(
-          // onSignedOut: _signedOut,
-        );
+            // onSignedOut: _signedOut,
+            );
     }
     return null;
   }

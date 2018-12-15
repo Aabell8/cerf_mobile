@@ -57,9 +57,8 @@ class Auth implements BaseAuth {
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
 
       user = User.fromJson(parsedRes['me']);
-      return user.id;
     } catch (e) {
-      print(e);
+      return null;
     }
     return user?.id;
   }
@@ -105,7 +104,7 @@ class Auth implements BaseAuth {
 
     if (jsonResponse['errors'] != null && jsonResponse['errors'].length > 0) {
       throw Exception(
-        'Error returned by the GQL server in the query: ${jsonResponse['errors'][0]}',
+        'Error returned by the GQL server in the query: \n${jsonResponse['errors'][0]}',
       );
     }
 
