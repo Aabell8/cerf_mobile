@@ -10,7 +10,7 @@ abstract class BaseAuth {
   Future<String> loginWithEmailAndPassword(String email, String password);
   Future<String> createUserWithEmailAndPassword(String email, String password);
   Future<String> currentUser();
-  Future<void> signOut();
+  Future<void> logout();
 }
 
 class Auth implements BaseAuth {
@@ -63,17 +63,20 @@ class Auth implements BaseAuth {
     return user?.id;
   }
 
-  Future<void> signOut() async {
-    cookie = null;
-    // TODO: clear cookie from storage
+  Future<void> logout() async {
     try {
       final http.Response response = await _runQuery(mutations.logout);
       if (response.statusCode != 200) {
         // TODO: Change exception to custom and handle response
         throw Exception("error in logging out");
       }
-      // final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
-      // print(parsedRes);
+      final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
+      if (parsedRes['logout'] == true) {
+        // Successfully logged out from graphQL
+      }
+      // TODO: clear cookie from storage
+      // clear cookie from header even if not successfully logged out of gQL
+      cookie = null;
       return;
     } catch (e) {
       print(e);
@@ -122,7 +125,8 @@ class Auth implements BaseAuth {
       'Cookie': '$cookie',
       'Content-Type': 'application/json',
     };
-
+    // print("running ${query.substring(0,15)}");
+    // print("cookie: $cookie");
     return client.post(
       url,
       headers: headers,

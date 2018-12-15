@@ -16,8 +16,8 @@ class MyApp extends StatelessWidget {
     //     .loginWithEmailAndPassword("Austin6@gmail.com", "Testing123")
     //     .then((res) {
     //   print(res);
-    //   auth.currentUser().then((res) {
-    //     print(res);
+    //   auth.logout().then((res) {
+    //     print("logged out");
     //   });
     // });
     // auth.currentUser().then((res) => print(res));

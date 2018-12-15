@@ -1,4 +1,5 @@
 import 'package:cerf_mobile/pages/SchedulePage.dart';
+import 'package:cerf_mobile/services/auth.dart';
 import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +20,7 @@ class _RootPageState extends State<RootPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    var auth = AuthProvider.of(context).auth;
+    Auth auth = AuthProvider.of(context).auth;
     auth.currentUser().then((userId) {
       setState(() {
         authStatus =
