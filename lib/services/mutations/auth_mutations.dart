@@ -10,3 +10,9 @@ String login = """
   }
 """
     .replaceAll('\n', ' ');
+
+String logout = """
+  mutation {
+    logout
+  }
+""".replaceAll('\n', ' ');

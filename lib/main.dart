@@ -12,7 +12,13 @@ class MyApp extends StatelessWidget {
     // final Auth auth = Auth();
     // auth
     //     .loginWithEmailAndPassword("Austin6@gmail.com", "Testing123")
-    //     .then((res) => print(res));
+    //     .then((res) {
+    //   print(res);
+    //   auth.currentUser().then((res) {
+    //     print(res);
+    //   });
+    // });
+    // auth.currentUser().then((res) => print(res));
 
     return MaterialApp(
       title: 'Cerf',
