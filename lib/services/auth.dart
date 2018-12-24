@@ -53,7 +53,7 @@ class Auth implements BaseAuth {
   Future<String> currentUser() async {
     User user;
     try {
-      final http.Response response = await _runQuery(queries.current_user);
+      final http.Response response = await _runQuery(queries.currentUser);
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
 
       user = User.fromJson(parsedRes['me']);

@@ -1,4 +1,4 @@
-String current_user = """
+String currentUser = """
   {
     me {
       id

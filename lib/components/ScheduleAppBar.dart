@@ -25,6 +25,7 @@ class ScheduleAppBar extends AppBar {
                                 style: TextStyle(
                                   color: AppColors.blueAccent,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
                                 ),
                               ),
                             ),
@@ -51,6 +52,7 @@ class ScheduleAppBar extends AppBar {
                                 style: TextStyle(
                                   color: AppColors.greenBlue,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
                                 ),
                               ),
                             ),
