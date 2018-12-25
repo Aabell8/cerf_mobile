@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import './mutations/auth_mutations.dart' as mutations;
 import './queries/auth_queries.dart' as queries;
@@ -17,13 +18,28 @@ class Auth implements BaseAuth {
   Auth({
     String cookie,
   }) {
-    this.cookie = cookie; //TODO: get cookie from storage or pass into here
-    this.client = http.Client();
+    this._client = http.Client();
   }
 
   String cookie;
-  http.Client client;
-  String url = "https://viss-mobile.herokuapp.com/graphql";
+  String storageCookieKey = "graphql_cookie";
+  http.Client _client;
+  String _url = "https://viss-mobile.herokuapp.com/graphql";
+
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  Future<String> _getMobileCookie() async {
+    final SharedPreferences prefs = await _prefs;
+    String _cookieString = prefs.getString(storageCookieKey);
+    cookie = _cookieString;
+    return _cookieString ?? '';
+  }
+
+  Future<bool> _setMobileCookie(String token) async {
+    final SharedPreferences prefs = await _prefs;
+
+    return prefs.setString(storageCookieKey, token);
+  }
 
   Future<String> loginWithEmailAndPassword(
       String email, String password) async {
@@ -52,6 +68,7 @@ class Auth implements BaseAuth {
 
   Future<String> currentUser() async {
     User user;
+    await _getMobileCookie();
     try {
       final http.Response response = await _runQuery(queries.currentUser);
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
@@ -74,7 +91,7 @@ class Auth implements BaseAuth {
       if (parsedRes['logout'] == true) {
         // Successfully logged out from graphQL
       }
-      // TODO: clear cookie from storage
+      _setMobileCookie(null);
       // clear cookie from header even if not successfully logged out of gQL
       cookie = null;
       return;
@@ -91,7 +108,7 @@ class Auth implements BaseAuth {
       String cookieString = response.headers['set-cookie'];
       if (cookieString != null) {
         cookie = cookieString.split(';')[0];
-        // TODO: Store cookie in storage
+        _setMobileCookie(cookie);
       }
     } catch (e) {
       print("error in setting cookie $e");
@@ -121,14 +138,19 @@ class Auth implements BaseAuth {
       'variables': variables,
     });
 
+    // TODO: change this to not set token here
+    _getMobileCookie().then((res) {
+      cookie = res;
+    });
+
     Map<String, String> headers = {
       'Cookie': '$cookie',
       'Content-Type': 'application/json',
     };
     // print("running ${query.substring(0,15)}");
     // print("cookie: $cookie");
-    return client.post(
-      url,
+    return _client.post(
+      _url,
       headers: headers,
       body: body,
     );
