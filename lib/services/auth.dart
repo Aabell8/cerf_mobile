@@ -15,9 +15,7 @@ abstract class BaseAuth {
 }
 
 class Auth implements BaseAuth {
-  Auth({
-    String cookie,
-  }) {
+  Auth() {
     this._client = http.Client();
   }
 
@@ -25,19 +23,22 @@ class Auth implements BaseAuth {
   String storageCookieKey = "graphql_cookie";
   http.Client _client;
   String _url = "https://viss-mobile.herokuapp.com/graphql";
+  // String _url = "http://10.0.2.2:5000/graphql";
 
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   Future<String> _getMobileCookie() async {
     final SharedPreferences prefs = await _prefs;
+
     String _cookieString = prefs.getString(storageCookieKey);
-    cookie = _cookieString;
+    if (_cookieString != null) {
+      cookie = _cookieString;
+    }
     return _cookieString ?? '';
   }
 
   Future<bool> _setMobileCookie(String token) async {
     final SharedPreferences prefs = await _prefs;
-
     return prefs.setString(storageCookieKey, token);
   }
 
@@ -103,7 +104,6 @@ class Auth implements BaseAuth {
   Map<String, dynamic> _parseGQLResponse(http.Response response) {
     final int statusCode = response.statusCode;
     final String reasonPhrase = response.reasonPhrase;
-
     try {
       String cookieString = response.headers['set-cookie'];
       if (cookieString != null) {
@@ -138,17 +138,13 @@ class Auth implements BaseAuth {
       'variables': variables,
     });
 
-    // TODO: change this to not set token here
-    _getMobileCookie().then((res) {
-      cookie = res;
-    });
-
     Map<String, String> headers = {
       'Cookie': '$cookie',
       'Content-Type': 'application/json',
     };
-    // print("running ${query.substring(0,15)}");
-    // print("cookie: $cookie");
+
+    print('query run');
+
     return _client.post(
       _url,
       headers: headers,

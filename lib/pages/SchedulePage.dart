@@ -7,6 +7,8 @@ import 'dart:async';
 import 'package:cerf_mobile/components/ScheduleAppBar.dart';
 import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/pages/NewTaskPage.dart';
+import 'package:cerf_mobile/services/auth.dart';
+import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -14,9 +16,11 @@ import 'package:cerf_mobile/model/Task.dart';
 import 'package:cerf_mobile/components/TaskListItem.dart';
 
 class SchedulePage extends StatefulWidget {
-  const SchedulePage({Key key, this.isStarted = false}) : super(key: key);
+  const SchedulePage({Key key, this.isStarted = false, this.onSignedOut})
+      : super(key: key);
 
   final bool isStarted;
+  final VoidCallback onSignedOut;
 
   @override
   _SchedulePageState createState() => _SchedulePageState();
@@ -46,7 +50,22 @@ class _SchedulePageState extends State<SchedulePage> {
   Widget build(BuildContext context) {
     // print(widget.tasks.length);
     return Scaffold(
-      appBar: ScheduleAppBar(),
+      appBar: AppBar(
+          title: Text("Schedule"),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: (String s) => _select(s, context),
+              itemBuilder: (BuildContext context) {
+                return ["logout"].map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+          bottom: ScheduleAppBar()),
       body: Scrollbar(
         child: widget.isStarted
             ? Column(
@@ -84,6 +103,18 @@ class _SchedulePageState extends State<SchedulePage> {
   Future<Task> _createNewTask() async {
     return await Navigator.push(context,
         MaterialPageRoute(builder: (BuildContext context) => NewTaskPage()));
+  }
+
+  void _select(String choice, BuildContext context) async {
+    if (choice == 'logout') {
+      try {
+      Auth auth = AuthProvider.of(context).auth;
+      await auth.logout();
+      widget.onSignedOut();
+    } catch (e) {
+      print(e);
+}
+    }
   }
 }
 
