@@ -23,7 +23,7 @@ class Auth implements BaseAuth {
 
   String cookie;
   http.Client client;
-  String url = "http://localhost:5000/graphql";
+  String url = "https://viss-mobile.herokuapp.com/graphql";
 
   Future<String> loginWithEmailAndPassword(
       String email, String password) async {

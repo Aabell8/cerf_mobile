@@ -1,4 +1,4 @@
-import 'package:cerf_mobile/pages/LoginPage.dart';
+import 'package:cerf_mobile/pages/AuthPage.dart';
 import 'package:cerf_mobile/pages/SchedulePage.dart';
 import 'package:cerf_mobile/services/auth.dart';
 import 'package:cerf_mobile/services/auth_provider.dart';
@@ -48,7 +48,7 @@ class _RootPageState extends State<RootPage> {
       case AuthStatus.notDetermined:
         return _buildWaitingScreen();
       case AuthStatus.notSignedIn:
-        return LoginPage();
+        return AuthPage(onSignedIn: _signedIn);
       case AuthStatus.signedIn:
         return SchedulePage(
             // onSignedOut: _signedOut,

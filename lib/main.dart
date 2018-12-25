@@ -2,7 +2,6 @@ import 'package:cerf_mobile/pages/RootPage.dart';
 import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
 
-import 'package:cerf_mobile/pages/SchedulePage.dart';
 import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/services/auth.dart';
 
@@ -25,7 +24,7 @@ class MyApp extends StatelessWidget {
     return AuthProvider(
       auth: Auth(),
       child: MaterialApp(
-        title: 'Cerf',
+        title: 'Viss',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: AppColors.greenBlue,
