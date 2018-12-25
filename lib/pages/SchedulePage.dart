@@ -1,10 +1,10 @@
-// Copyright 2018 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'dart:async';
 
+import 'package:cerf_mobile/components/ScheduleAppBar.dart';
 import 'package:cerf_mobile/constants/colors.dart';
+import 'package:cerf_mobile/pages/NewTaskPage.dart';
+import 'package:cerf_mobile/services/auth.dart';
+import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -12,24 +12,24 @@ import 'package:cerf_mobile/model/Task.dart';
 import 'package:cerf_mobile/components/TaskListItem.dart';
 
 class SchedulePage extends StatefulWidget {
-  const SchedulePage(
-      {Key key, this.createNewTask, this.isStarted = false, this.tasks})
+  const SchedulePage({Key key, this.isStarted = false, this.onSignedOut})
       : super(key: key);
 
-  final TimeCallback createNewTask;
   final bool isStarted;
-  final List<Task> tasks;
+  final VoidCallback onSignedOut;
 
   @override
-  _SchedulePageState createState() => new _SchedulePageState();
+  _SchedulePageState createState() => _SchedulePageState();
 }
 
 class _SchedulePageState extends State<SchedulePage> {
   static final GlobalKey<ScaffoldState> scaffoldKey =
-      new GlobalKey<ScaffoldState>();
+      GlobalKey<ScaffoldState>();
+
+  List<Task> tasks = testTasks.toList();
 
   Widget buildListTile(Task item) {
-    return new TaskListItem(item, context);
+    return TaskListItem(item, context);
   }
 
   void _onReorder(int oldIndex, int newIndex) {
@@ -37,40 +37,56 @@ class _SchedulePageState extends State<SchedulePage> {
       if (newIndex > oldIndex) {
         newIndex -= 1;
       }
-      final Task item = widget.tasks.removeAt(oldIndex);
-      widget.tasks.insert(newIndex, item);
+      final Task item = tasks.removeAt(oldIndex);
+      tasks.insert(newIndex, item);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    print(widget.tasks.length);
-    return new Scaffold(
-      body: new Scrollbar(
+    // print(widget.tasks.length);
+    return Scaffold(
+      appBar: AppBar(
+          title: Text("Schedule"),
+          actions: <Widget>[
+            PopupMenuButton<String>(
+              onSelected: (String s) => _select(s, context),
+              itemBuilder: (BuildContext context) {
+                return ["logout"].map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+          bottom: ScheduleAppBar()),
+      body: Scrollbar(
         child: widget.isStarted
-            ? new Column(
+            ? Column(
                 children: <Widget>[
                   Text("Test column"),
-                  new ListView(
+                  ListView(
                     scrollDirection: Axis.vertical,
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    children: widget.tasks.map(buildListTile).toList(),
+                    children: tasks.map(buildListTile).toList(),
                   )
                 ],
               )
-            : new ReorderableListView(
+            : ReorderableListView(
                 onReorder: _onReorder,
                 scrollDirection: Axis.vertical,
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                children: widget.tasks.map(buildListTile).toList(),
+                children: tasks.map(buildListTile).toList(),
               ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          widget.createNewTask().then((item) {
+          _createNewTask().then((item) {
             if (item != null) {
-              widget.tasks.add(item);
-              print("Added item");
+              tasks.add(item);
+              print("Added item: ${item.address}");
             }
           });
         },
@@ -78,6 +94,23 @@ class _SchedulePageState extends State<SchedulePage> {
         backgroundColor: AppColors.blueAccent,
       ),
     );
+  }
+
+  Future<Task> _createNewTask() async {
+    return await Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => NewTaskPage()));
+  }
+
+  void _select(String choice, BuildContext context) async {
+    if (choice == 'logout') {
+      try {
+      Auth auth = AuthProvider.of(context).auth;
+      await auth.logout();
+      widget.onSignedOut();
+    } catch (e) {
+      print(e);
+}
+    }
   }
 }
 

@@ -19,9 +19,9 @@ class TaskWindowPicker extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
-        new Expanded(
+        Expanded(
           flex: 3,
-          child: new _InputDropdown(
+          child: _InputDropdown(
             labelText: "Start Time",
             valueText: windowStart.format(context),
             onPressed: () {
@@ -30,9 +30,9 @@ class TaskWindowPicker extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12.0),
-        new Expanded(
+        Expanded(
           flex: 3,
-          child: new _InputDropdown(
+          child: _InputDropdown(
             labelText: "End Time",
             valueText: windowEnd.format(context),
             onPressed: () {
@@ -65,19 +65,19 @@ class _InputDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new InkWell(
+    return InkWell(
       onTap: onPressed,
-      child: new InputDecorator(
-        decoration: new InputDecoration(
+      child: InputDecorator(
+        decoration: InputDecoration(
           labelText: labelText,
         ),
         baseStyle: valueStyle,
-        child: new Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            new Text(valueText, style: valueStyle),
-            new Icon(Icons.arrow_drop_down,
+            Text(valueText, style: valueStyle),
+            Icon(Icons.arrow_drop_down,
                 color: Theme.of(context).brightness == Brightness.light
                     ? Colors.grey.shade700
                     : Colors.white70),

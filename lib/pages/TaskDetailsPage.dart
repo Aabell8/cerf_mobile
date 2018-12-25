@@ -13,12 +13,12 @@ class TaskDetailsPage extends StatefulWidget {
   final Task task;
 
   @override
-  TaskDetailsPageState createState() => new TaskDetailsPageState();
+  TaskDetailsPageState createState() => TaskDetailsPageState();
 }
 
 class TaskDetailsPageState extends State<TaskDetailsPage> {
   static final GlobalKey<ScaffoldState> _scaffoldKey =
-      new GlobalKey<ScaffoldState>();
+      GlobalKey<ScaffoldState>();
   final double _appBarHeight = 256.0;
 
   Uri staticMapUri;
@@ -32,7 +32,7 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
       lat = widget.task.lat;
       lng = widget.task.lng;
     }
-    staticMapUri = new Uri(
+    staticMapUri = Uri(
         scheme: "https",
         host: "maps.googleapis.com",
         path: "/maps/api/staticmap",
@@ -49,17 +49,15 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
   @override
   Widget build(BuildContext context) {
     Task task = widget.task;
-    // const double lat = task.lat;
-    // lat = task.lat.toString();
-    return new Scaffold(
+    return Scaffold(
       key: _scaffoldKey,
-      body: new CustomScrollView(
+      body: CustomScrollView(
         slivers: <Widget>[
-          new SliverAppBar(
+          SliverAppBar(
             expandedHeight: _appBarHeight,
             pinned: true,
             actions: <Widget>[
-              new IconButton(
+              IconButton(
                 icon: const Icon(Icons.create),
                 tooltip: 'Edit',
                 onPressed: () {
@@ -69,12 +67,11 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                 },
               ),
             ],
-            flexibleSpace: new FlexibleSpaceBar(
-              // title: const Text('Ali Connors'),
-              background: new Stack(
+            flexibleSpace: FlexibleSpaceBar(
+              background: Stack(
                 fit: StackFit.expand,
                 children: <Widget>[
-                  new Image.network(
+                  Image.network(
                     staticMapUri.toString(),
                     fit: BoxFit.cover,
                     height: _appBarHeight,
@@ -95,18 +92,18 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
               ),
             ),
           ),
-          new SliverList(
-            delegate: new SliverChildListDelegate(<Widget>[
-              new AnnotatedRegion<SystemUiOverlayStyle>(
+          SliverList(
+            delegate: SliverChildListDelegate(<Widget>[
+              AnnotatedRegion<SystemUiOverlayStyle>(
                 value: SystemUiOverlayStyle.dark,
-                child: new DetailsCategory(
+                child: DetailsCategory(
                   icon: Icons.location_on,
                   children: <Widget>[
-                    new DetailsItem(
+                    DetailsItem(
                       icon: Icons.directions,
                       tooltip: 'Get Directions',
                       onPressed: () async {
-                        Uri launchUri = new Uri(
+                        Uri launchUri = Uri(
                             scheme: "https",
                             host: "www.google.com",
                             path: "/maps/search/",
@@ -128,7 +125,7 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                         'Address',
                       ],
                     ),
-                    new DetailsItem(
+                    DetailsItem(
                       tooltip: 'Get Directions',
                       lines: <String>[
                         "${task.duration} minutes, ${Task.timeOfDayFormat(task.windowStart, task.windowEnd, task.isAllDay)}",
@@ -139,42 +136,42 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                 ),
               ),
               widget.task.notes != ""
-                  ? new Container(
-                      decoration: new BoxDecoration(
-                          border: new Border(
-                              bottom: new BorderSide(
+                  ? Container(
+                      decoration: BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(
                                   color: Theme.of(context).dividerColor))),
                       child: Padding(
                         padding: const EdgeInsets.all(24.0),
-                        child: new Text(widget.task.notes,
+                        child: Text(widget.task.notes,
                             style: Theme.of(context).textTheme.caption),
                       ),
                     )
-                  : new Container(width: 0.0, height: 0.0),
-              new Container(
-                decoration: new BoxDecoration(
-                    border: new Border(
-                        bottom: new BorderSide(
+                  : Container(width: 0.0, height: 0.0),
+              Container(
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
                             color: Theme.of(context).dividerColor))),
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     children: <Widget>[
-                      // TODO: reword this
-                      new Text("To share progress with the client:"),
-                      new Row(
+                      // reword this maybe
+                      Text("Share progress with the client:"),
+                      Row(
                         children: <Widget>[
-                          new DetailsButton(
+                          DetailsButton(
                             text: "Email",
                             icon: Icons.email,
                             onPressed: () {},
                           ),
-                          new DetailsButton(
+                          DetailsButton(
                             text: "Copy Link",
                             icon: Icons.link,
                             onPressed: () {},
                           ),
-                          new DetailsButton(
+                          DetailsButton(
                             text: "Other",
                             icon: Icons.more_horiz,
                             onPressed: () {},
