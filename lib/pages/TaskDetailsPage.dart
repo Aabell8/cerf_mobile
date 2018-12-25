@@ -49,8 +49,6 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
   @override
   Widget build(BuildContext context) {
     Task task = widget.task;
-    // const double lat = task.lat;
-    // lat = task.lat.toString();
     return Scaffold(
       key: _scaffoldKey,
       body: CustomScrollView(
@@ -70,7 +68,6 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              // title: const Text('Ali Connors'),
               background: Stack(
                 fit: StackFit.expand,
                 children: <Widget>[
@@ -160,8 +157,8 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     children: <Widget>[
-                      // TODO: reword this
-                      Text("To share progress with the client:"),
+                      // reword this maybe
+                      Text("Share progress with the client:"),
                       Row(
                         children: <Widget>[
                           DetailsButton(

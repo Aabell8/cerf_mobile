@@ -25,7 +25,6 @@ class _RootPageState extends State<RootPage> {
     Auth auth = AuthProvider.of(context).auth;
     if (authStatus == AuthStatus.notDetermined) {
       auth.currentUser().then((userId) {
-        print('current user: $userId');
         setState(() {
           authStatus =
               userId == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;

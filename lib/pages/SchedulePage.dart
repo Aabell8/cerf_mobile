@@ -1,7 +1,3 @@
-// Copyright 2018 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'dart:async';
 
 import 'package:cerf_mobile/components/ScheduleAppBar.dart';
@@ -90,7 +86,7 @@ class _SchedulePageState extends State<SchedulePage> {
           _createNewTask().then((item) {
             if (item != null) {
               tasks.add(item);
-              print("Added item");
+              print("Added item: ${item.address}");
             }
           });
         },

@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cerf_mobile/model/Task.dart';
 
-// import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:http/http.dart' as http;
 
 import 'dart:math';
@@ -103,12 +102,11 @@ class _NewTaskPageState extends State<NewTaskPage> {
           try {
             List<dynamic> results = jsonRes["results"];
             // Handle if there are multiple results
-            print("${results.length} result for query");
+            print("${results.length} result(s) for query");
             var type = results[0]["geometry"]["location_type"];
             if (type == "ROOFTOP" || type == "RANGE_INTERPOLATED") {
               String addressResult = "";
               results[0]["address_components"].forEach((component) {
-                print(component);
                 addressResult = "$addressResult${component["short_name"]} ";
               });
               showDemoDialog<DialogAction>(

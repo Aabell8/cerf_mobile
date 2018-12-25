@@ -101,9 +101,12 @@ class Auth implements BaseAuth {
     }
   }
 
+  // Parse response from server
   Map<String, dynamic> _parseGQLResponse(http.Response response) {
     final int statusCode = response.statusCode;
     final String reasonPhrase = response.reasonPhrase;
+
+    // Get cookie sent from server if exists
     try {
       String cookieString = response.headers['set-cookie'];
       if (cookieString != null) {
@@ -131,6 +134,7 @@ class Auth implements BaseAuth {
     return jsonResponse['data'];
   }
 
+  // Run queries against grapgQL server, may want to move out of Auth class
   Future<http.Response> _runQuery(String query,
       {Map<String, dynamic> variables}) {
     final String body = json.encode({
@@ -142,8 +146,6 @@ class Auth implements BaseAuth {
       'Cookie': '$cookie',
       'Content-Type': 'application/json',
     };
-
-    print('query run');
 
     return _client.post(
       _url,

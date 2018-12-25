@@ -10,17 +10,6 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // final Auth auth = Auth();
-    // auth
-    //     .loginWithEmailAndPassword("Austin6@gmail.com", "Testing123")
-    //     .then((res) {
-    //   print(res);
-    //   auth.logout().then((res) {
-    //     print("logged out");
-    //   });
-    // });
-    // auth.currentUser().then((res) => print(res));
-
     return AuthProvider(
       auth: Auth(),
       child: MaterialApp(

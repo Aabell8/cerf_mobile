@@ -39,7 +39,6 @@ class ScheduleAppBar extends PreferredSize {
                     child: Material(
                       child: InkWell(
                         onTap: () {
-                          // _started = true;
                           print("clicked Start");
                         },
                         child: Container(
