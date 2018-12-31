@@ -65,6 +65,7 @@ class _HomeContentState extends State<HomeContent> {
                         fontSize: 15.0,
                       ),
                     ),
+                    color: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                     onPressed: () => widget.gotoSignup(),
                   ),

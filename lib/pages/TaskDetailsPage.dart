@@ -49,6 +49,9 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
   @override
   Widget build(BuildContext context) {
     Task task = widget.task;
+    final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       key: _scaffoldKey,
       body: CustomScrollView(
@@ -56,6 +59,7 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
           SliverAppBar(
             expandedHeight: _appBarHeight,
             pinned: true,
+            backgroundColor: isDark ? Colors.grey[900] : null,
             actions: <Widget>[
               IconButton(
                 icon: const Icon(Icons.create),

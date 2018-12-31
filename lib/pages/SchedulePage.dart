@@ -12,11 +12,12 @@ import 'package:cerf_mobile/model/Task.dart';
 import 'package:cerf_mobile/components/TaskListItem.dart';
 
 class SchedulePage extends StatefulWidget {
-  const SchedulePage({Key key, this.isStarted = false, this.onSignedOut})
+  const SchedulePage({Key key, this.isStarted = false, this.onSignedOut, this.onThemeChanged})
       : super(key: key);
 
   final bool isStarted;
   final VoidCallback onSignedOut;
+  final VoidCallback onThemeChanged;
 
   @override
   _SchedulePageState createState() => _SchedulePageState();
@@ -44,15 +45,18 @@ class _SchedulePageState extends State<SchedulePage> {
 
   @override
   Widget build(BuildContext context) {
-    // print(widget.tasks.length);
+    final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
           title: Text("Schedule"),
+          backgroundColor: isDark ? Colors.grey[900] : null,
           actions: <Widget>[
             PopupMenuButton<String>(
               onSelected: (String s) => _select(s, context),
               itemBuilder: (BuildContext context) {
-                return ["logout"].map((String choice) {
+                return ["logout", "dark"].map((String choice) {
                   return PopupMenuItem<String>(
                     value: choice,
                     child: Text(choice),
@@ -61,7 +65,7 @@ class _SchedulePageState extends State<SchedulePage> {
               },
             ),
           ],
-          bottom: ScheduleAppBar()),
+          bottom: ScheduleAppBar(dark: isDark)),
       body: Scrollbar(
         child: widget.isStarted
             ? Column(
@@ -104,12 +108,14 @@ class _SchedulePageState extends State<SchedulePage> {
   void _select(String choice, BuildContext context) async {
     if (choice == 'logout') {
       try {
-      Auth auth = AuthProvider.of(context).auth;
-      await auth.logout();
-      widget.onSignedOut();
-    } catch (e) {
-      print(e);
-}
+        Auth auth = AuthProvider.of(context).auth;
+        await auth.logout();
+        widget.onSignedOut();
+      } catch (e) {
+        print(e);
+      }
+    } else if (choice == 'dark') {
+      widget.onThemeChanged();
     }
   }
 }

@@ -2,7 +2,7 @@ import 'package:cerf_mobile/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class ScheduleAppBar extends PreferredSize {
-  ScheduleAppBar({Key key})
+  ScheduleAppBar({Key key, bool dark})
       : super(
           preferredSize: Size.fromHeight(48.0),
           child: Material(
@@ -31,7 +31,7 @@ class ScheduleAppBar extends PreferredSize {
                       ),
                       color: Colors.transparent,
                     ),
-                    color: Colors.white,
+                    color: dark ? Colors.grey[850] : Colors.white,
                   ),
                 ),
                 Expanded(
@@ -57,7 +57,7 @@ class ScheduleAppBar extends PreferredSize {
                       ),
                       color: Colors.transparent,
                     ),
-                    color: Colors.white,
+                    color: dark ? Colors.grey[850] : Colors.white,
                   ),
                 ),
               ],

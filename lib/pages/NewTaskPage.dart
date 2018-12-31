@@ -174,10 +174,14 @@ class _NewTaskPageState extends State<NewTaskPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('New Task'),
+        backgroundColor: isDark ? Colors.grey[900] : null,
       ),
       body: SafeArea(
         top: false,
