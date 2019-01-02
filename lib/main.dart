@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 
 import 'package:cerf_mobile/services/auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
+
+const _themeKey = "theme_option";
 
 class MyApp extends StatefulWidget {
   @override
@@ -19,19 +22,39 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   VissOptions _options;
 
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  void _getOptions() async {
+    final SharedPreferences prefs = await _prefs;
+
+    bool _theme = prefs.getBool(_themeKey);
+    if (_theme != null && _theme) {
+      setState(() {
+        _options = _options.copyWith(theme: kDarkVissTheme);
+      });
+    }
+  }
+
+  void _setOptions(VissOptions options) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.setBool(_themeKey, options.theme == kDarkVissTheme);
+  }
+
   @override
   void initState() {
     super.initState();
     _options = VissOptions(
-      theme: kDarkVissTheme,
+      theme: kLightVissTheme,
       platform: defaultTargetPlatform,
     );
+    _getOptions();
   }
 
   void _handleOptionsChanged(VissOptions newOptions) {
     setState(() {
       _options = newOptions;
     });
+    _setOptions(newOptions);
   }
 
   @override
