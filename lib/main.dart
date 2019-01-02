@@ -1,7 +1,9 @@
+import 'package:cerf_mobile/components/settings/VissOptions.dart';
 import 'package:cerf_mobile/constants/themes.dart';
 import 'package:cerf_mobile/pages/SchedulePage.dart';
 import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 
 import 'package:cerf_mobile/services/auth.dart';
 
@@ -15,17 +17,20 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  VissTheme _theme;
+  VissOptions _options;
 
   @override
   void initState() {
     super.initState();
-    _theme = kDarkVissTheme;
+    _options = VissOptions(
+      theme: kDarkVissTheme,
+      platform: defaultTargetPlatform,
+    );
   }
 
-  void _handleThemeChanged() {
+  void _handleOptionsChanged(VissOptions newOptions) {
     setState(() {
-      _theme = _theme == kDarkVissTheme ? kLightVissTheme : kDarkVissTheme;
+      _options = newOptions;
     });
   }
 
@@ -36,9 +41,10 @@ class MyAppState extends State<MyApp> {
       child: MaterialApp(
         title: 'Viss',
         debugShowCheckedModeBanner: false,
-        theme: _theme.data,
+        theme: _options.theme.data.copyWith(platform: _options.platform),
         home: SchedulePage(
-          onThemeChanged: _handleThemeChanged,
+          options: _options,
+          onOptionsChanged: _handleOptionsChanged,
         ),
       ),
     );

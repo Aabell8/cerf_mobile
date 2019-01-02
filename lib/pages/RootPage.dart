@@ -54,8 +54,10 @@ class _RootPageState extends State<RootPage> {
         return AuthPage(onSignedIn: _signedIn);
       case AuthStatus.signedIn:
         return SchedulePage(
-            onSignedOut: _signedOut,
-            );
+          onSignedOut: _signedOut,
+          // options: _options,
+          // onOptionsChanged: _handleOptionsChanged,
+        );
     }
     return null;
   }

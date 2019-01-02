@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:cerf_mobile/components/ScheduleAppBar.dart';
+import 'package:cerf_mobile/components/settings/VissOptions.dart';
 import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/pages/NewTaskPage.dart';
+import 'package:cerf_mobile/pages/SettingsPage.dart';
 import 'package:cerf_mobile/services/auth.dart';
 import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -12,12 +14,18 @@ import 'package:cerf_mobile/model/Task.dart';
 import 'package:cerf_mobile/components/TaskListItem.dart';
 
 class SchedulePage extends StatefulWidget {
-  const SchedulePage({Key key, this.isStarted = false, this.onSignedOut, this.onThemeChanged})
+  const SchedulePage(
+      {Key key,
+      this.isStarted = false,
+      this.options,
+      this.onSignedOut,
+      this.onOptionsChanged})
       : super(key: key);
 
   final bool isStarted;
+  final VissOptions options;
+  final ValueChanged<VissOptions> onOptionsChanged;
   final VoidCallback onSignedOut;
-  final VoidCallback onThemeChanged;
 
   @override
   _SchedulePageState createState() => _SchedulePageState();
@@ -53,17 +61,21 @@ class _SchedulePageState extends State<SchedulePage> {
           title: Text("Schedule"),
           backgroundColor: isDark ? Colors.grey[900] : null,
           actions: <Widget>[
-            PopupMenuButton<String>(
-              onSelected: (String s) => _select(s, context),
-              itemBuilder: (BuildContext context) {
-                return ["logout", "dark"].map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
-                }).toList();
-              },
-            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () => _goToSettings(),
+            )
+            // PopupMenuButton<String>(
+            //   onSelected: (String s) => _select(s, context),
+            //   itemBuilder: (BuildContext context) {
+            //     return ["logout", "dark"].map((String choice) {
+            //       return PopupMenuItem<String>(
+            //         value: choice,
+            //         child: Text(choice),
+            //       );
+            //     }).toList();
+            //   },
+            // ),
           ],
           bottom: ScheduleAppBar(dark: isDark)),
       body: Scrollbar(
@@ -101,22 +113,37 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   Future<Task> _createNewTask() async {
-    return await Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => NewTaskPage()));
+    return await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => NewTaskPage(),
+        ));
   }
 
-  void _select(String choice, BuildContext context) async {
-    if (choice == 'logout') {
-      try {
-        Auth auth = AuthProvider.of(context).auth;
-        await auth.logout();
-        widget.onSignedOut();
-      } catch (e) {
-        print(e);
-      }
-    } else if (choice == 'dark') {
-      widget.onThemeChanged();
-    }
+  // void _select(String choice, BuildContext context) async {
+  //   if (choice == 'logout') {
+  //     try {
+  //       Auth auth = AuthProvider.of(context).auth;
+  //       await auth.logout();
+  //       widget.onSignedOut();
+  //     } catch (e) {
+  //       print(e);
+  //     }
+  //   } else if (choice == 'dark') {
+  //     widget.onThemeChanged();
+  //   }
+  // }
+
+  void _goToSettings() async {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => SettingsPage(
+                options: widget.options,
+                onOptionsChanged: widget.onOptionsChanged,
+                onSignedOut: widget.onSignedOut,
+              ),
+        ));
   }
 }
 
