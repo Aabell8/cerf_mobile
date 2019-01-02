@@ -5,8 +5,6 @@ import 'package:cerf_mobile/components/settings/VissOptions.dart';
 import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/pages/NewTaskPage.dart';
 import 'package:cerf_mobile/pages/SettingsPage.dart';
-import 'package:cerf_mobile/services/auth.dart';
-import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

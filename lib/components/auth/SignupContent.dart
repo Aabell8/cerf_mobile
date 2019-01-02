@@ -3,10 +3,13 @@ import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
 
 class SignupContent extends StatefulWidget {
-  SignupContent({Key key, this.gotoLogin, this.onSignedIn}) : super(key: key);
+  SignupContent(
+      {Key key, this.gotoLogin, this.onSignedIn, this.onSnackBarMessage})
+      : super(key: key);
 
   final VoidCallback gotoLogin;
   final VoidCallback onSignedIn;
+  final Function onSnackBarMessage;
 
   _SignupContentState createState() => _SignupContentState();
 }
@@ -28,10 +31,10 @@ class _SignupContentState extends State<SignupContent> {
       try {
         var auth = AuthProvider.of(context).auth;
 
-        String userId =
+        Map<String, String> response =
             await auth.createUserWithEmailAndPassword("Not", "implemented");
-        print('Registered user: $userId');
-        if (userId != null) {
+        print('Registered user: ${response['user']}');
+        if (response['user'] != null) {
           widget.onSignedIn();
         }
       } catch (e) {

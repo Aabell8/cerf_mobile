@@ -62,10 +62,10 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
             backgroundColor: isDark ? Colors.grey[900] : null,
             actions: <Widget>[
               IconButton(
-                icon: const Icon(Icons.create),
+                icon: Icon(Icons.create),
                 tooltip: 'Edit',
                 onPressed: () {
-                  _scaffoldKey.currentState.showSnackBar(const SnackBar(
+                  _scaffoldKey.currentState.showSnackBar(SnackBar(
                       content:
                           Text("Editing isn't supported in this screen.")));
                 },
@@ -83,7 +83,7 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
 
                   // This gradient ensures that the toolbar icons are distinct
                   // against the background image.
-                  const DecoratedBox(
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment(0.0, -1.0),
@@ -146,7 +146,7 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                               bottom: BorderSide(
                                   color: Theme.of(context).dividerColor))),
                       child: Padding(
-                        padding: const EdgeInsets.all(24.0),
+                        padding: EdgeInsets.all(24.0),
                         child: Text(widget.task.notes,
                             style: Theme.of(context).textTheme.caption),
                       ),
@@ -155,10 +155,10 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
               Container(
                 decoration: BoxDecoration(
                     border: Border(
-                        bottom: BorderSide(
-                            color: Theme.of(context).dividerColor))),
+                        bottom:
+                            BorderSide(color: Theme.of(context).dividerColor))),
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: EdgeInsets.all(24.0),
                   child: Column(
                     children: <Widget>[
                       // reword this maybe

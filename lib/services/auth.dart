@@ -8,9 +8,11 @@ import './queries/auth_queries.dart' as queries;
 import 'package:cerf_mobile/model/User.dart';
 
 abstract class BaseAuth {
-  Future<String> loginWithEmailAndPassword(String email, String password);
-  Future<String> createUserWithEmailAndPassword(String email, String password);
-  Future<String> currentUser();
+  Future<Map<String, String>> loginWithEmailAndPassword(
+      String email, String password);
+  Future<Map<String, String>> createUserWithEmailAndPassword(
+      String email, String password);
+  Future<Map<String, String>> currentUser();
   Future<void> logout();
 }
 
@@ -42,7 +44,7 @@ class Auth implements BaseAuth {
     return prefs.setString(storageCookieKey, token);
   }
 
-  Future<String> loginWithEmailAndPassword(
+  Future<Map<String, String>> loginWithEmailAndPassword(
       String email, String password) async {
     Map<String, dynamic> variables = {
       'email': email,
@@ -56,18 +58,18 @@ class Auth implements BaseAuth {
 
       user = User.fromJson(parsedRes['login']);
     } catch (e) {
-      print(e);
+      return {'error': e.toString()};
     }
 
-    return user?.id;
+    return {"user": user?.id};
   }
 
-  Future<String> createUserWithEmailAndPassword(
+  Future<Map<String, String>> createUserWithEmailAndPassword(
       String email, String password) async {
-    return "user?.uid";
+    return {"user":"user?.uid"};
   }
 
-  Future<String> currentUser() async {
+  Future<Map<String, String>> currentUser() async {
     User user;
     await _getMobileCookie();
     try {
@@ -76,17 +78,16 @@ class Auth implements BaseAuth {
 
       user = User.fromJson(parsedRes['me']);
     } catch (e) {
-      return null;
+      return {"error": "Could not retrieve data: $e"};
     }
-    return user?.id;
+    return {"user": user?.id};
   }
 
   Future<void> logout() async {
     try {
       final http.Response response = await _runQuery(mutations.logout);
       if (response.statusCode != 200) {
-        // TODO: Change exception to custom and handle response
-        throw Exception("error in logging out");
+        throw http.ClientException("error in logging out");
       }
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
       if (parsedRes['logout'] == true) {

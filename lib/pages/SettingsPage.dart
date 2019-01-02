@@ -24,29 +24,30 @@ class SettingsPage extends StatelessWidget {
         title: Text('Settings'),
         backgroundColor: isDark ? Colors.grey[900] : null,
       ),
-      body: ListView(
-          padding: EdgeInsets.only(bottom: 124.0),
-          children: <Widget>[
-            _Heading('Display'),
-            _ThemeItem(options, onOptionsChanged),
-            Divider(),
-            _Heading('Account'),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: RaisedButton(
-                      key: Key('logoutButton'),
-                      child: Text('LOGOUT'),
-                      color: Theme.of(context).primaryColor,
-                      onPressed: onSignedOut,
-                    ),
-                  ),
-                ],
+      body:
+          ListView(padding: EdgeInsets.only(bottom: 124.0), children: <Widget>[
+        _Heading('Display'),
+        _ThemeItem(options, onOptionsChanged),
+        Divider(),
+        _Heading('Account'),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: RaisedButton(
+                    key: Key('logoutButton'),
+                    child: Text('LOGOUT'),
+                    color: Theme.of(context).primaryColor,
+                    onPressed: () {
+                      onSignedOut();
+                      Navigator.pop(context);
+                    }),
               ),
-            ),
-          ]),
+            ],
+          ),
+        ),
+      ]),
     );
   }
 }
@@ -139,7 +140,6 @@ class _BooleanItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     return _OptionsItem(
       child: Row(
         children: <Widget>[
