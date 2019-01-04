@@ -56,6 +56,10 @@ class Auth implements BaseAuth {
           await _runQuery(mutations.login, variables: variables);
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
 
+      if (parsedRes['error'] != null) {
+        return {'error': parsedRes['error']};
+      }
+
       user = User.fromJson(parsedRes['login']);
     } catch (e) {
       return {'error': e.toString()};
@@ -66,7 +70,26 @@ class Auth implements BaseAuth {
 
   Future<Map<String, String>> createUserWithEmailAndPassword(
       String email, String password) async {
-    return {"user":"user?.uid"};
+    Map<String, dynamic> variables = {
+      'email': email,
+      'password': password,
+    };
+    User user;
+    try {
+      final http.Response response =
+          await _runQuery(mutations.signUp, variables: variables);
+      final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
+
+      if (parsedRes['error'] != null) {
+        return {'error': parsedRes['error']};
+      }
+
+      user = User.fromJson(parsedRes['signUp']);
+    } catch (e) {
+      return {'error': e.toString()};
+    }
+
+    return {"user": user?.id};
   }
 
   Future<Map<String, String>> currentUser() async {
@@ -75,6 +98,10 @@ class Auth implements BaseAuth {
     try {
       final http.Response response = await _runQuery(queries.currentUser);
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
+
+      if (parsedRes['error'] != null) {
+        return {'error': parsedRes['error']};
+      }
 
       user = User.fromJson(parsedRes['me']);
     } catch (e) {
@@ -127,9 +154,14 @@ class Auth implements BaseAuth {
     final Map<String, dynamic> jsonResponse = json.decode(response.body);
 
     if (jsonResponse['errors'] != null && jsonResponse['errors'].length > 0) {
-      throw Exception(
-        'Error returned by the GQL server in the query: \n${jsonResponse['errors'][0]}',
-      );
+      var errorMessage = jsonResponse['errors'][0];
+      if (errorMessage['message'] != null) {
+        return {'error': errorMessage['message']};
+      } else {
+        throw Exception(
+          'Error returned by the GQL server in the query: \n${jsonResponse['errors'][0]}',
+        );
+      }
     }
 
     return jsonResponse['data'];

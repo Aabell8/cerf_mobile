@@ -34,8 +34,7 @@ class _LoginContentState extends State<LoginContent> {
 
         if (response['error'] != null) {
           widget.onSnackBarMessage("Error in signing in: ${response['error']}");
-        }
-        else if (response['user'] != null) {
+        } else if (response['user'] != null) {
           widget.onSignedIn();
         } else {
           widget.onSnackBarMessage("User does not exist");
@@ -72,6 +71,8 @@ class _LoginContentState extends State<LoginContent> {
               ),
               TextFormField(
                 key: Key('login_email'),
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Email',
@@ -85,6 +86,8 @@ class _LoginContentState extends State<LoginContent> {
               ),
               TextFormField(
                 key: Key('login_password'),
+                obscureText: true,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',

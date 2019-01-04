@@ -31,13 +31,18 @@ class _SignupContentState extends State<SignupContent> {
       try {
         var auth = AuthProvider.of(context).auth;
 
-        Map<String, String> response =
-            await auth.createUserWithEmailAndPassword("Not", "implemented");
-        print('Registered user: ${response['user']}');
-        if (response['user'] != null) {
+        Map<String, String> response = await auth
+            .createUserWithEmailAndPassword("Austin6@gmail.com", "Testing123");
+
+        if (response['error'] != null) {
+          widget.onSnackBarMessage("Error in signing in: ${response['error']}");
+        } else if (response['user'] != null) {
           widget.onSignedIn();
+        } else {
+          widget.onSnackBarMessage("User does not exist");
         }
       } catch (e) {
+        widget.onSnackBarMessage("Error in logging in");
         print('Error: $e');
       }
     }
@@ -67,6 +72,8 @@ class _SignupContentState extends State<SignupContent> {
               ),
               TextFormField(
                 key: Key('signup_email'),
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Email',
@@ -80,6 +87,8 @@ class _SignupContentState extends State<SignupContent> {
               ),
               TextFormField(
                 key: Key('signup_password'),
+                obscureText: true,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
@@ -93,6 +102,8 @@ class _SignupContentState extends State<SignupContent> {
               ),
               TextFormField(
                 key: Key('signup_confirm_password'),
+                obscureText: true,
+                textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Confirm Password',
