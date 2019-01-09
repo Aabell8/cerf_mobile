@@ -1,27 +1,27 @@
-class Location {
+class VissLocation {
   double lng;
   double lat;
   String time;
 
-  Location({
+  VissLocation({
     this.lng,
     this.lat,
     this.time,
   });
 
-  Location copyWith({
+  VissLocation copyWith({
     lng,
     email,
     time,
   }) {
-    return Location(
+    return VissLocation(
       lng: lng ?? this.lng,
       lat: email ?? this.lat,
       time: time ?? this.time,
     );
   }
 
-  Location.fromJson(Map<String, dynamic> json)
+  VissLocation.fromJson(Map<String, dynamic> json)
       : lng = json['lng'],
         lat = json['lat'],
         time = json['time'];

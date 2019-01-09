@@ -2,8 +2,14 @@ import 'package:cerf_mobile/constants/colors.dart';
 import 'package:flutter/material.dart';
 
 class ScheduleAppBar extends PreferredSize {
-  ScheduleAppBar({Key key, bool dark})
-      : super(
+  ScheduleAppBar({
+    Key key,
+    bool dark,
+    bool isStarted = false,
+    VoidCallback onStart,
+    VoidCallback onOptimize,
+    VoidCallback onPause,
+  }) : super(
           preferredSize: Size.fromHeight(48.0),
           child: Material(
             child: Row(
@@ -13,19 +19,28 @@ class ScheduleAppBar extends PreferredSize {
                     child: Material(
                       child: InkWell(
                         onTap: () {
-                          print("clicked Optimize");
+                          print("clicked left button");
                         },
                         child: Container(
                           height: 48.0,
                           child: Center(
-                            child: Text(
-                              "Optimize",
-                              style: TextStyle(
-                                color: AppColors.blueAccent,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.0,
-                              ),
-                            ),
+                            child: isStarted
+                                ? Text(
+                                    "Notify",
+                                    style: TextStyle(
+                                      color: AppColors.blueAccent,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
+                                    ),
+                                  )
+                                : Text(
+                                    "Optimize",
+                                    style: TextStyle(
+                                      color: AppColors.blueAccent,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
@@ -39,19 +54,32 @@ class ScheduleAppBar extends PreferredSize {
                     child: Material(
                       child: InkWell(
                         onTap: () {
-                          print("clicked Start");
+                          if (isStarted) {
+                            onPause();
+                          } else {
+                            onStart();
+                          }
                         },
                         child: Container(
                           height: 48.0,
                           child: Center(
-                            child: Text(
-                              "Start",
-                              style: TextStyle(
-                                color: AppColors.greenBlue,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16.0,
-                              ),
-                            ),
+                            child: isStarted
+                                ? Text(
+                                    "Pause",
+                                    style: TextStyle(
+                                      color: Colors.orangeAccent,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
+                                    ),
+                                  )
+                                : Text(
+                                    "Start",
+                                    style: TextStyle(
+                                      color: AppColors.greenBlue,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
+                                    ),
+                                  ),
                           ),
                         ),
                       ),
