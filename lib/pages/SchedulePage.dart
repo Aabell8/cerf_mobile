@@ -40,21 +40,25 @@ class _SchedulePageState extends State<SchedulePage> {
   void initState() {
     super.initState();
     _isStarted = false;
-    initPlatformState();
   }
 
   initPlatformState() async {
+    Map<String, double> location;
     try {
       await _location.hasPermission();
-      await _location.getLocation();
+      location = await _location.getLocation();
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
-        showSnackBarMessage('Permission denied');
-      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
         showSnackBarMessage(
-            'Permission denied - please ask the user to enable it from the app settings');
+            'Permission denied for retrieving location, please enable it in settings');
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        // This logic statement doesn't seem to be reachable
+        print('Permission not asked for and not allowed yet');
       }
+      location = null;
     }
+
+    print(location);
   }
 
   Widget buildListTile(Task item) {
@@ -71,10 +75,12 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
-  void onStarted() {
+  void onStarted() async {
+    await initPlatformState();
     setState(() {
       _locationSubscription =
           _location.onLocationChanged().listen((Map<String, double> result) {
+        print(result);
         setState(() {
           _currentLocation = result;
         });
