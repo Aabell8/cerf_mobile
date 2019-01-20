@@ -60,6 +60,35 @@ class Task {
     );
   }
 
+  Task.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        windowStart = json['windowStart'],
+        windowEnd = json['windowEnd'],
+        duration = json['duration'],
+        address = json['address'],
+        city = json['city'],
+        province = json['province'],
+        lat = json['lat'],
+        lng = json['lng'],
+        status = json['status'],
+        notes = json['notes'],
+        isAllDay = json['isAllDay'];
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'windowStart': windowStart,
+        'windowEnd': windowEnd,
+        'duration': duration,
+        'address': address,
+        'city': city,
+        'province': province,
+        'lat': lat,
+        'lng': lng,
+        'status': status,
+        'notes': notes,
+        'isAllDay': isAllDay,
+      };
+
   static String timeOfDayFormat(
       TimeOfDay timeStart, TimeOfDay timeEnd, bool isAllDay) {
     // Change static date

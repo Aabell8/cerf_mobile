@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cerf_mobile/services/graphql.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
 import './mutations/auth_mutations.dart' as mutations;
 import './queries/auth_queries.dart' as queries;
@@ -14,35 +14,12 @@ abstract class BaseAuth {
       String email, String password);
   Future<Map<String, String>> currentUser();
   Future<void> logout();
+  String cookie;
 }
 
 class Auth implements BaseAuth {
-  Auth() {
-    this._client = http.Client();
-  }
-
   String cookie;
   String storageCookieKey = "graphql_cookie";
-  http.Client _client;
-  String _url = "https://viss-mobile.herokuapp.com/graphql";
-  // String _url = "http://10.0.2.2:5000/graphql";
-
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
-  Future<String> _getMobileCookie() async {
-    final SharedPreferences prefs = await _prefs;
-
-    String _cookieString = prefs.getString(storageCookieKey);
-    if (_cookieString != null) {
-      cookie = _cookieString;
-    }
-    return _cookieString ?? '';
-  }
-
-  Future<bool> _setMobileCookie(String token) async {
-    final SharedPreferences prefs = await _prefs;
-    return prefs.setString(storageCookieKey, token);
-  }
 
   Future<Map<String, String>> loginWithEmailAndPassword(
       String email, String password) async {
@@ -53,7 +30,7 @@ class Auth implements BaseAuth {
     User user;
     try {
       final http.Response response =
-          await _runQuery(mutations.login, variables: variables);
+          await runQuery(mutations.login, cookie, variables: variables);
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
 
       if (parsedRes['error'] != null) {
@@ -77,7 +54,7 @@ class Auth implements BaseAuth {
     User user;
     try {
       final http.Response response =
-          await _runQuery(mutations.signUp, variables: variables);
+          await runQuery(mutations.signUp, cookie, variables: variables);
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
 
       if (parsedRes['error'] != null) {
@@ -94,9 +71,13 @@ class Auth implements BaseAuth {
 
   Future<Map<String, String>> currentUser() async {
     User user;
-    await _getMobileCookie();
+    String cookieString = await getMobileCookie();
+    if (cookieString != null) {
+      cookie = cookieString;
+    }
     try {
-      final http.Response response = await _runQuery(queries.currentUser);
+      final http.Response response =
+          await runQuery(queries.currentUser, cookie);
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
 
       if (parsedRes['error'] != null) {
@@ -112,7 +93,7 @@ class Auth implements BaseAuth {
 
   Future<void> logout() async {
     try {
-      final http.Response response = await _runQuery(mutations.logout);
+      final http.Response response = await runQuery(mutations.logout, cookie);
       if (response.statusCode != 200) {
         throw http.ClientException("error in logging out");
       }
@@ -120,7 +101,7 @@ class Auth implements BaseAuth {
       if (parsedRes['logout'] == true) {
         // Successfully logged out from graphQL
       }
-      _setMobileCookie(null);
+      setMobileCookie(null);
       // clear cookie from header even if not successfully logged out of gQL
       cookie = null;
       return;
@@ -139,7 +120,7 @@ class Auth implements BaseAuth {
       String cookieString = response.headers['set-cookie'];
       if (cookieString != null) {
         cookie = cookieString.split(';')[0];
-        _setMobileCookie(cookie);
+        setMobileCookie(cookie);
       }
     } catch (e) {
       print("error in setting cookie $e");
@@ -165,25 +146,5 @@ class Auth implements BaseAuth {
     }
 
     return jsonResponse['data'];
-  }
-
-  // Run queries against grapgQL server, may want to move out of Auth class
-  Future<http.Response> _runQuery(String query,
-      {Map<String, dynamic> variables}) {
-    final String body = json.encode({
-      'query': query,
-      'variables': variables,
-    });
-
-    Map<String, String> headers = {
-      'Cookie': '$cookie',
-      'Content-Type': 'application/json',
-    };
-
-    return _client.post(
-      _url,
-      headers: headers,
-      body: body,
-    );
   }
 }

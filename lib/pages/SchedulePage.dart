@@ -5,6 +5,8 @@ import 'package:cerf_mobile/components/settings/VissOptions.dart';
 import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/pages/NewTaskPage.dart';
 import 'package:cerf_mobile/pages/SettingsPage.dart';
+import 'package:cerf_mobile/services/auth_provider.dart';
+import 'package:cerf_mobile/services/tasks.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -30,8 +32,9 @@ class _SchedulePageState extends State<SchedulePage> {
   static final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>();
 
-  List<Task> tasks = testTasks.toList();
-  bool _isStarted = false;
+  List<Task> tasks;
+  bool _isStarted;
+  bool _isLoading;
 
   Map<String, double> _currentLocation;
   StreamSubscription<Map<String, double>> _locationSubscription;
@@ -40,6 +43,17 @@ class _SchedulePageState extends State<SchedulePage> {
   void initState() {
     super.initState();
     _isStarted = false;
+    _isLoading = true;
+    updateTasks();
+  }
+
+  updateTasks() {
+    fetchTasks().then((res) {
+      setState(() {
+        tasks = res;
+        _isLoading = false;
+      });
+    });
   }
 
   initPlatformState() async {
@@ -122,20 +136,22 @@ class _SchedulePageState extends State<SchedulePage> {
             onStart: onStarted,
             onPause: onPaused,
           )),
-      body: Scrollbar(
-        child: _isStarted
-            ? ListView(
-                scrollDirection: Axis.vertical,
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                children: tasks.map(buildListTile).toList(),
-              )
-            : ReorderableListView(
-                onReorder: _onReorder,
-                scrollDirection: Axis.vertical,
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                children: tasks.map(buildListTile).toList(),
-              ),
-      ),
+      body: !_isLoading
+          ? Scrollbar(
+              child: _isStarted
+                  ? ListView(
+                      scrollDirection: Axis.vertical,
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      children: tasks.map(buildListTile).toList(),
+                    )
+                  : ReorderableListView(
+                      onReorder: _onReorder,
+                      scrollDirection: Axis.vertical,
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      children: tasks.map(buildListTile).toList(),
+                    ),
+            )
+          : CircularProgressIndicator(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _createNewTask().then((item) {
