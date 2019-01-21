@@ -5,7 +5,6 @@ import 'package:cerf_mobile/components/settings/VissOptions.dart';
 import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/pages/NewTaskPage.dart';
 import 'package:cerf_mobile/pages/SettingsPage.dart';
-import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:cerf_mobile/services/tasks.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +31,7 @@ class _SchedulePageState extends State<SchedulePage> {
   static final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>();
 
-  List<Task> tasks;
+  List<Task> tasks = [];
   bool _isStarted;
   bool _isLoading;
 
@@ -53,6 +52,11 @@ class _SchedulePageState extends State<SchedulePage> {
         tasks = res;
         _isLoading = false;
       });
+    }).catchError((e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(e);
     });
   }
 
@@ -72,7 +76,7 @@ class _SchedulePageState extends State<SchedulePage> {
       location = null;
     }
 
-    print(location);
+    // print(location);
   }
 
   Widget buildListTile(Task item) {
@@ -94,7 +98,6 @@ class _SchedulePageState extends State<SchedulePage> {
     setState(() {
       _locationSubscription =
           _location.onLocationChanged().listen((Map<String, double> result) {
-        print(result);
         setState(() {
           _currentLocation = result;
         });
@@ -151,14 +154,11 @@ class _SchedulePageState extends State<SchedulePage> {
                       children: tasks.map(buildListTile).toList(),
                     ),
             )
-          : CircularProgressIndicator(),
+          : Center(child: CircularProgressIndicator()),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _createNewTask().then((item) {
-            if (item != null) {
-              tasks.add(item);
-              print("Added item: ${item.address}");
-            }
+            updateTasks();
           });
         },
         child: Icon(Icons.add),

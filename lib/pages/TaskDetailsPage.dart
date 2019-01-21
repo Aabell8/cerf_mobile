@@ -5,6 +5,7 @@ import 'package:cerf_mobile/constants/secret.dart';
 import 'package:cerf_mobile/model/Task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TaskDetailsPage extends StatefulWidget {
@@ -132,7 +133,8 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                     DetailsItem(
                       tooltip: 'Get Directions',
                       lines: <String>[
-                        "${task.duration} minutes, ${Task.timeOfDayFormat(task.windowStart, task.windowEnd, task.isAllDay)}",
+                        "${task.duration} minutes: ${DateFormat("MMMEd").format(task.windowStart)}",
+                        "${Task.timeOfDayFormat(task.windowStart, task.windowEnd, task.isAllDay)}",
                         'Estimated time: ',
                       ],
                     ),
