@@ -3,10 +3,13 @@ import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
 
 class SignupContent extends StatefulWidget {
-  SignupContent({Key key, this.gotoLogin, this.onSignedIn}) : super(key: key);
+  SignupContent(
+      {Key key, this.gotoLogin, this.onSignedIn, this.onSnackBarMessage})
+      : super(key: key);
 
   final VoidCallback gotoLogin;
   final VoidCallback onSignedIn;
+  final Function onSnackBarMessage;
 
   _SignupContentState createState() => _SignupContentState();
 }
@@ -28,13 +31,18 @@ class _SignupContentState extends State<SignupContent> {
       try {
         var auth = AuthProvider.of(context).auth;
 
-        String userId =
-            await auth.createUserWithEmailAndPassword("Not", "implemented");
-        print('Registered user: $userId');
-        if (userId != null) {
+        Map<String, String> response = await auth
+            .createUserWithEmailAndPassword("Austin6@gmail.com", "Testing123");
+
+        if (response['error'] != null) {
+          widget.onSnackBarMessage("Error in signing in: ${response['error']}");
+        } else if (response['user'] != null) {
           widget.onSignedIn();
+        } else {
+          widget.onSnackBarMessage("User does not exist");
         }
       } catch (e) {
+        widget.onSnackBarMessage("Error in logging in");
         print('Error: $e');
       }
     }
@@ -64,6 +72,8 @@ class _SignupContentState extends State<SignupContent> {
               ),
               TextFormField(
                 key: Key('signup_email'),
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Email',
@@ -77,6 +87,8 @@ class _SignupContentState extends State<SignupContent> {
               ),
               TextFormField(
                 key: Key('signup_password'),
+                obscureText: true,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
@@ -90,6 +102,8 @@ class _SignupContentState extends State<SignupContent> {
               ),
               TextFormField(
                 key: Key('signup_confirm_password'),
+                obscureText: true,
+                textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Confirm Password',

@@ -1,3 +1,4 @@
+import 'package:cerf_mobile/components/settings/VissOptions.dart';
 import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/pages/AuthPage.dart';
 import 'package:cerf_mobile/pages/SchedulePage.dart';
@@ -6,6 +7,11 @@ import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
 
 class RootPage extends StatefulWidget {
+  RootPage({this.options, this.onOptionsChanged});
+
+  final VissOptions options;
+  final ValueChanged<VissOptions> onOptionsChanged;
+
   @override
   State<StatefulWidget> createState() => _RootPageState();
 }
@@ -24,10 +30,11 @@ class _RootPageState extends State<RootPage> {
     super.didChangeDependencies();
     Auth auth = AuthProvider.of(context).auth;
     if (authStatus == AuthStatus.notDetermined) {
-      auth.currentUser().then((userId) {
+      auth.currentUser().then((response) {
         setState(() {
-          authStatus =
-              userId == null ? AuthStatus.notSignedIn : AuthStatus.signedIn;
+          authStatus = response['user'] == null
+              ? AuthStatus.notSignedIn
+              : AuthStatus.signedIn;
         });
       });
     }
@@ -40,6 +47,8 @@ class _RootPageState extends State<RootPage> {
   }
 
   void _signedOut() {
+    Auth auth = AuthProvider.of(context).auth;
+    auth.logout();
     setState(() {
       authStatus = AuthStatus.notSignedIn;
     });
@@ -47,6 +56,9 @@ class _RootPageState extends State<RootPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.options.theme == null) {
+      return _buildWaitingScreen();
+    }
     switch (authStatus) {
       case AuthStatus.notDetermined:
         return _buildWaitingScreen();
@@ -54,8 +66,10 @@ class _RootPageState extends State<RootPage> {
         return AuthPage(onSignedIn: _signedIn);
       case AuthStatus.signedIn:
         return SchedulePage(
-            onSignedOut: _signedOut,
-            );
+          onSignedOut: _signedOut,
+          options: widget.options,
+          onOptionsChanged: widget.onOptionsChanged,
+        );
     }
     return null;
   }

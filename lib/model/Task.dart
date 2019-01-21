@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 class Task {
   String id;
   bool isAllDay;
-  TimeOfDay windowStart;
-  TimeOfDay windowEnd;
+  DateTime windowStart;
+  DateTime windowEnd;
   int duration;
   String address;
   String city;
@@ -60,67 +60,59 @@ class Task {
     );
   }
 
+  factory Task.fromJson(Map<String, dynamic> json) {
+    DateTime windowStart = DateTime.fromMillisecondsSinceEpoch(
+      int.tryParse(json['windowStart']),
+      isUtc: true,
+    );
+    DateTime windowEnd = DateTime.fromMillisecondsSinceEpoch(
+      int.tryParse(json['windowEnd']),
+      isUtc: true,
+    );
+    return Task(
+      id: json['id'] as String,
+      windowStart: windowStart,
+      windowEnd: windowEnd,
+      duration: json['duration'] as int,
+      address: json['address'] as String,
+      city: json['city'] as String,
+      province: json['province'] as String,
+      lat: json['lat'] as double,
+      lng: json['lng'] as double,
+      status: json['status'] as String,
+      notes: json['notes'] as String,
+      isAllDay: json['isAllDay'] as bool,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'windowStart': windowStart,
+        'windowEnd': windowEnd,
+        'duration': duration,
+        'address': address,
+        'city': city,
+        'province': province,
+        'lat': lat,
+        'lng': lng,
+        'status': status,
+        'notes': notes,
+        'isAllDay': isAllDay,
+      };
+
+  static TimeOfDay toTimeOfDay(String date) {
+    DateTime parsed = DateTime.parse(date);
+    return TimeOfDay(hour: parsed.hour, minute: parsed.minute);
+  }
+
   static String timeOfDayFormat(
-      TimeOfDay timeStart, TimeOfDay timeEnd, bool isAllDay) {
-    // Change static date
+      DateTime timeStart, DateTime timeEnd, bool isAllDay) {
     if (isAllDay) {
       return "today";
     } else if (timeStart == null || timeEnd == null) {
       return "";
     } else {
-      DateTime date = DateTime(2018, 08, 09, timeStart.hour, timeStart.minute);
-      DateTime dateEnd = DateTime(2018, 08, 09, timeEnd.hour, timeEnd.minute);
-
-      return '${DateFormat.jm().format(date)}-${DateFormat.jm().format(dateEnd)}';
+      return '${DateFormat.jm().format(timeStart)}-${DateFormat.jm().format(timeEnd)}';
     }
   }
 }
-
-const TimeOfDay startTime = TimeOfDay(hour: 8, minute: 0);
-const endTime = TimeOfDay(hour: 9, minute: 0);
-
-var testTasks = <Task>[
-  Task(
-      id: '1',
-      windowStart: TimeOfDay(hour: 8, minute: 0),
-      windowEnd: TimeOfDay(hour: 15, minute: 0),
-      duration: 30,
-      address: '12 St. George St, London',
-      city: 'London',
-      province: 'ON',
-      notes:
-          'These are some notes about the first item in the list. It must be done before 3pm today.',
-      status: ''),
-  Task(
-      id: '2',
-      isAllDay: true,
-      duration: 40,
-      address: '124 Richmond St',
-      city: 'London',
-      province: 'ON',
-      notes:
-          'These are some notes about the second item in the list. It can be done at any point in the day.',
-      status: ''),
-  Task(
-      id: '3',
-      windowStart: TimeOfDay(hour: 5, minute: 0),
-      windowEnd: TimeOfDay(hour: 17, minute: 0),
-      duration: 50,
-      address: '566 Sunset Ave',
-      city: 'London',
-      province: 'ON',
-      notes:
-          'These are some notes about the third item in the list. It must be done before 5pm today.',
-      status: ''),
-  Task(
-      id: '4',
-      windowStart: TimeOfDay(hour: 12, minute: 0),
-      windowEnd: TimeOfDay(hour: 15, minute: 0),
-      duration: 50,
-      address: '133 Pall Mall St',
-      city: 'London',
-      province: 'ON',
-      notes:
-          'These are some notes about the fourth item in the list. It must be done before 3pm today.',
-      status: ''),
-];

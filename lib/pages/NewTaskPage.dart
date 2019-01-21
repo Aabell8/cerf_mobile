@@ -3,13 +3,12 @@ import 'dart:convert';
 
 import 'package:cerf_mobile/components/TaskWindowPicker.dart';
 import 'package:cerf_mobile/constants/secret.dart';
+import 'package:cerf_mobile/services/tasks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cerf_mobile/model/Task.dart';
 
 import 'package:http/http.dart' as http;
-
-import 'dart:math';
 
 enum DialogAction {
   accept,
@@ -17,7 +16,7 @@ enum DialogAction {
 }
 
 class NewTaskPage extends StatefulWidget {
-  const NewTaskPage({Key key}) : super(key: key);
+  NewTaskPage({Key key}) : super(key: key);
 
   static const String routeName = '/newTask';
 
@@ -32,11 +31,21 @@ class _NewTaskPageState extends State<NewTaskPage> {
   final _hourController = TextEditingController(text: '0');
   final _minuteController = TextEditingController(text: '00');
 
+  TimeOfDay startTime = TimeOfDay(hour: 9, minute: 0);
+  TimeOfDay endTime = TimeOfDay(hour: 17, minute: 0);
+  DateTime now = DateTime.now();
+
   Task task = Task(
-    windowStart: TimeOfDay(hour: 9, minute: 0),
-    windowEnd: TimeOfDay(hour: 17, minute: 0),
     province: "ON",
   );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    task = Task(
+      province: "ON",
+    );
+  }
 
   void showInSnackBar(String value) {
     _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
@@ -72,7 +81,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
   //   return null;
   // }
 
-  void _handleSubmitted() {
+  void _handleSubmitted() async {
     final FormState form = _formKey.currentState;
     setState(() {
       _submitting = true;
@@ -85,6 +94,17 @@ class _NewTaskPageState extends State<NewTaskPage> {
       });
     } else {
       form.save();
+      if (!task.isAllDay) {
+        task.windowStart = DateTime.utc(
+            now.year, now.month, now.day, startTime?.hour, startTime?.minute);
+        task.windowEnd = DateTime.utc(
+            now.year, now.month, now.day, endTime?.hour, endTime?.minute);
+      } else {
+        task.windowStart =
+            DateTime.utc(now.year, now.month, now.day, now.hour, now.minute);
+        task.windowEnd =
+            DateTime.utc(now.year, now.month, now.day, now.hour, now.minute);
+      }
       final uri = Uri(
         scheme: "https",
         host: "maps.googleapis.com",
@@ -102,7 +122,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
           try {
             List<dynamic> results = jsonRes["results"];
             // Handle if there are multiple results
-            print("${results.length} result(s) for query");
+            // print("${results.length} result(s) for query");
             var type = results[0]["geometry"]["location_type"];
             if (type == "ROOFTOP" || type == "RANGE_INTERPOLATED") {
               String addressResult = "";
@@ -112,16 +132,16 @@ class _NewTaskPageState extends State<NewTaskPage> {
               showDemoDialog<DialogAction>(
                 context: context,
                 child: AlertDialog(
-                  title: const Text('Is this the correct address?'),
+                  title: Text('Is this the correct address?'),
                   content: Text("$addressResult"),
                   actions: <Widget>[
                     FlatButton(
-                        child: const Text('CANCEL'),
+                        child: Text('CANCEL'),
                         onPressed: () {
                           Navigator.pop(context, DialogAction.cancel);
                         }),
                     FlatButton(
-                        child: const Text('ACCEPT'),
+                        child: Text('ACCEPT'),
                         onPressed: () {
                           Navigator.pop(context, DialogAction.accept);
                         })
@@ -132,8 +152,9 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   location = results[0]["geometry"]["location"];
                   task.lat = location["lat"];
                   task.lng = location["lng"];
-                  task.id = Random().nextInt(10000).toString();
-                  Navigator.of(context).pop(task);
+                  createTask(task).then((res) {
+                    Navigator.of(context).pop(res);
+                  });
                 }
                 setState(() {
                   _submitting = false;
@@ -174,10 +195,14 @@ class _NewTaskPageState extends State<NewTaskPage> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('New Task'),
+        backgroundColor: isDark ? Colors.grey[900] : null,
       ),
       body: SafeArea(
         top: false,
@@ -190,10 +215,11 @@ class _NewTaskPageState extends State<NewTaskPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                const SizedBox(height: 24.0),
+                SizedBox(height: 24.0),
                 TextFormField(
                   key: Key('address'),
-                  decoration: const InputDecoration(
+                  initialValue: "176 St George St", // ! remove
+                  decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Address',
                   ),
@@ -203,13 +229,14 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   validator: _validateAddress,
                   maxLines: 1,
                 ),
-                const SizedBox(height: 24.0),
+                SizedBox(height: 24.0),
                 Row(
                   children: <Widget>[
                     Expanded(
                       child: TextFormField(
                         key: Key('city'),
-                        decoration: const InputDecoration(
+                        initialValue: "London", // ! remove
+                        decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'City',
                         ),
@@ -221,7 +248,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                       ),
                       flex: 2,
                     ),
-                    const SizedBox(width: 32.0),
+                    SizedBox(width: 32.0),
                     Center(
                       child: DropdownButton<String>(
                         isDense: true,
@@ -253,10 +280,10 @@ class _NewTaskPageState extends State<NewTaskPage> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 16.0),
+                    SizedBox(width: 16.0),
                     // Expanded(
                     //   child: TextFormField(
-                    //     decoration: const InputDecoration(
+                    //     decoration:  InputDecoration(
                     //       border: OutlineInputBorder(),
                     //       labelText: 'Province',
                     //     ),
@@ -270,7 +297,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                     // ),
                   ],
                 ),
-                const SizedBox(height: 24.0),
+                SizedBox(height: 24.0),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -286,7 +313,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   ],
                 ),
                 task.isAllDay ? Container() : windowComponents(context),
-                const SizedBox(height: 24.0),
+                SizedBox(height: 24.0),
                 Text(
                   "Duration",
                   textAlign: TextAlign.center,
@@ -378,9 +405,9 @@ class _NewTaskPageState extends State<NewTaskPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 24.0),
+                SizedBox(height: 24.0),
                 TextFormField(
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: 'Notes about task',
                     labelText: 'Notes',
@@ -390,20 +417,21 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   },
                   maxLines: 3,
                 ),
-                const SizedBox(height: 24.0),
+                SizedBox(height: 24.0),
                 Row(
                   children: <Widget>[
                     Expanded(
                       child: RaisedButton.icon(
                         key: Key('createTaskButton'),
-                        icon: const Icon(Icons.add, size: 18.0),
-                        label: const Text('CREATE TASK'),
+                        icon: Icon(Icons.add, size: 18.0),
+                        label: Text('CREATE TASK'),
                         color: Theme.of(context).primaryColor,
                         onPressed: _submitting ? null : _handleSubmitted,
                       ),
                     ),
                   ],
                 ),
+                SizedBox(height: 24.0),
               ],
             ),
           ),
@@ -414,33 +442,35 @@ class _NewTaskPageState extends State<NewTaskPage> {
 
   Future<Null> _selectStartTime(BuildContext context) async {
     final TimeOfDay picked =
-        await showTimePicker(context: context, initialTime: task.windowStart);
-    if (picked != null && picked != task.windowStart) {
-      task.windowStart = picked;
+        await showTimePicker(context: context, initialTime: startTime);
+    if (picked != null && picked != startTime) {
       // refresh data
-      setState(() {});
+      setState(() {
+        startTime = picked;
+      });
     }
   }
 
   Future<Null> _selectEndTime(BuildContext context) async {
     final TimeOfDay picked =
-        await showTimePicker(context: context, initialTime: task.windowEnd);
-    if (picked != null && picked != task.windowEnd) {
-      task.windowEnd = picked;
+        await showTimePicker(context: context, initialTime: endTime);
+    if (picked != null && picked != endTime) {
       // refresh data
-      setState(() {});
+      setState(() {
+        endTime = picked;
+      });
     }
   }
 
   Widget windowComponents(BuildContext context) {
     return Column(
       children: <Widget>[
-        const SizedBox(height: 24.0),
+        SizedBox(height: 24.0),
         Text("This task can be started between:"),
-        const SizedBox(height: 12.0),
+        SizedBox(height: 12.0),
         TaskWindowPicker(
-          windowStart: task.windowStart,
-          windowEnd: task.windowEnd,
+          windowStart: startTime,
+          windowEnd: endTime,
           selectStartTime: _selectStartTime,
           selectEndTime: _selectEndTime,
         ),

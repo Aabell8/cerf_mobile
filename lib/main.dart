@@ -1,13 +1,70 @@
+import 'package:cerf_mobile/components/settings/VissOptions.dart';
+import 'package:cerf_mobile/constants/themes.dart';
 import 'package:cerf_mobile/pages/RootPage.dart';
 import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 
-import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/services/auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+const _themeKey = "theme_option";
+
+class MyApp extends StatefulWidget {
+  @override
+  MyAppState createState() {
+    return new MyAppState();
+  }
+}
+
+class MyAppState extends State<MyApp> {
+  VissOptions _options;
+
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  void _getOptions() async {
+    final SharedPreferences prefs = await _prefs;
+
+    bool _theme = prefs.getBool(_themeKey);
+    if (_theme != null) {
+      setState(() {
+        _options =
+            _options.copyWith(theme: _theme ? kDarkVissTheme : kLightVissTheme);
+      });
+    } else {
+      setState(() {
+        _options = VissOptions(
+          theme: kLightVissTheme,
+          platform: defaultTargetPlatform,
+        );
+      });
+    }
+  }
+
+  void _setOptions(VissOptions options) async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.setBool(_themeKey, options.theme == kDarkVissTheme);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _options = VissOptions(
+      theme: null,
+      platform: defaultTargetPlatform,
+    );
+    _getOptions();
+  }
+
+  void _handleOptionsChanged(VissOptions newOptions) {
+    setState(() {
+      _options = newOptions;
+    });
+    _setOptions(newOptions);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AuthProvider(
@@ -15,16 +72,14 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Viss',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: AppColors.greenBlue,
-          accentColor: AppColors.blueAccent,
-          buttonColor: AppColors.greenBlue,
-          buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
-          // brightness: Brightness.dark,
-          // primaryColorBrightness: Brightness.dark,
-          secondaryHeaderColor: AppColors.greenBlue,
+        // Look into why flashing white screen when network instantly fails
+        theme: _options.theme != null
+            ? _options.theme.data.copyWith(platform: _options.platform)
+            : kLightVissTheme.data,
+        home: RootPage(
+          options: _options,
+          onOptionsChanged: _handleOptionsChanged,
         ),
-        home: RootPage(),
       ),
     );
   }

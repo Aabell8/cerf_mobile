@@ -13,6 +13,13 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
+  static final GlobalKey<ScaffoldState> _scaffoldKey =
+      GlobalKey<ScaffoldState>();
+
+  showSnackBarMessage(String text) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(text)));
+  }
+
   gotoLogin() {
     _controller.animateToPage(
       0,
@@ -35,6 +42,7 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       body: Container(
           height: MediaQuery.of(context).size.height,
           child: PageView(
@@ -43,6 +51,7 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
             children: <Widget>[
               LoginContent(
                 onSignedIn: widget.onSignedIn,
+                onSnackBarMessage: showSnackBarMessage,
               ),
               HomeContent(
                 gotoLogin: gotoLogin,
@@ -51,6 +60,7 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
               SignupContent(
                 gotoLogin: gotoLogin,
                 onSignedIn: widget.onSignedIn,
+                onSnackBarMessage: showSnackBarMessage,
               ),
             ],
             scrollDirection: Axis.horizontal,

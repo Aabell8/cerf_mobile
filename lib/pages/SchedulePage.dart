@@ -1,21 +1,26 @@
 import 'dart:async';
 
 import 'package:cerf_mobile/components/ScheduleAppBar.dart';
+import 'package:cerf_mobile/components/settings/VissOptions.dart';
 import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/pages/NewTaskPage.dart';
-import 'package:cerf_mobile/services/auth.dart';
-import 'package:cerf_mobile/services/auth_provider.dart';
+import 'package:cerf_mobile/pages/SettingsPage.dart';
+import 'package:cerf_mobile/services/tasks.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:cerf_mobile/model/Task.dart';
 import 'package:cerf_mobile/components/TaskListItem.dart';
+import 'package:location/location.dart';
+import 'package:flutter/services.dart';
 
 class SchedulePage extends StatefulWidget {
-  const SchedulePage({Key key, this.isStarted = false, this.onSignedOut})
+  const SchedulePage(
+      {Key key, this.options, this.onSignedOut, this.onOptionsChanged})
       : super(key: key);
 
-  final bool isStarted;
+  final VissOptions options;
+  final ValueChanged<VissOptions> onOptionsChanged;
   final VoidCallback onSignedOut;
 
   @override
@@ -23,10 +28,56 @@ class SchedulePage extends StatefulWidget {
 }
 
 class _SchedulePageState extends State<SchedulePage> {
-  static final GlobalKey<ScaffoldState> scaffoldKey =
+  static final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>();
 
-  List<Task> tasks = testTasks.toList();
+  List<Task> tasks = [];
+  bool _isStarted;
+  bool _isLoading;
+
+  Map<String, double> _currentLocation;
+  StreamSubscription<Map<String, double>> _locationSubscription;
+  Location _location = new Location();
+
+  void initState() {
+    super.initState();
+    _isStarted = false;
+    _isLoading = true;
+    updateTasks();
+  }
+
+  Future<void> updateTasks() {
+    return fetchTasks().then<void>((res) {
+      setState(() {
+        tasks = res;
+        _isLoading = false;
+      });
+    }).catchError((e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print(e);
+    });
+  }
+
+  initPlatformState() async {
+    Map<String, double> location;
+    try {
+      await _location.hasPermission();
+      location = await _location.getLocation();
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        showSnackBarMessage(
+            'Permission denied for retrieving location, please enable it in settings');
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        // This logic statement doesn't seem to be reachable
+        print('Permission not asked for and not allowed yet');
+      }
+      location = null;
+    }
+
+    // print(location);
+  }
 
   Widget buildListTile(Task item) {
     return TaskListItem(item, context);
@@ -42,52 +93,77 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
+  void onStarted() async {
+    await initPlatformState();
+    setState(() {
+      _locationSubscription =
+          _location.onLocationChanged().listen((Map<String, double> result) {
+        setState(() {
+          _currentLocation = result;
+        });
+      });
+      _isStarted = true;
+    });
+  }
+
+  void onPaused() {
+    setState(() {
+      _locationSubscription.cancel();
+      _isStarted = false;
+    });
+  }
+
+  void onRefresh() {
+    updateTasks();
+  }
+
+  showSnackBarMessage(String text) {
+    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(text)));
+  }
+
   @override
   Widget build(BuildContext context) {
-    // print(widget.tasks.length);
+    final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
           title: Text("Schedule"),
+          backgroundColor: isDark ? Colors.grey[900] : null,
           actions: <Widget>[
-            PopupMenuButton<String>(
-              onSelected: (String s) => _select(s, context),
-              itemBuilder: (BuildContext context) {
-                return ["logout"].map((String choice) {
-                  return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
-                }).toList();
-              },
-            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () => _goToSettings(),
+            )
           ],
-          bottom: ScheduleAppBar()),
-      body: Scrollbar(
-        child: widget.isStarted
-            ? Column(
-                children: <Widget>[
-                  Text("Test column"),
-                  ListView(
-                    scrollDirection: Axis.vertical,
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    children: tasks.map(buildListTile).toList(),
-                  )
-                ],
-              )
-            : ReorderableListView(
-                onReorder: _onReorder,
-                scrollDirection: Axis.vertical,
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                children: tasks.map(buildListTile).toList(),
-              ),
-      ),
+          bottom: ScheduleAppBar(
+            dark: isDark,
+            isStarted: _isStarted,
+            onStart: onStarted,
+            onPause: onPaused,
+            onOptimize: onRefresh,
+          )),
+      body: !_isLoading
+          ? Scrollbar(
+              child: _isStarted
+                  ? ListView(
+                      scrollDirection: Axis.vertical,
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      children: tasks.map(buildListTile).toList(),
+                    )
+                  : ReorderableListView(
+                      onReorder: _onReorder,
+                      scrollDirection: Axis.vertical,
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      children: tasks.map(buildListTile).toList(),
+                    ),
+            )
+          : Center(child: CircularProgressIndicator()),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _createNewTask().then((item) {
-            if (item != null) {
-              tasks.add(item);
-              print("Added item: ${item.address}");
-            }
+            updateTasks();
           });
         },
         child: Icon(Icons.add),
@@ -97,20 +173,30 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   Future<Task> _createNewTask() async {
-    return await Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => NewTaskPage()));
+    return await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => NewTaskPage(),
+        ));
   }
 
-  void _select(String choice, BuildContext context) async {
-    if (choice == 'logout') {
-      try {
-      Auth auth = AuthProvider.of(context).auth;
-      await auth.logout();
-      widget.onSignedOut();
-    } catch (e) {
-      print(e);
-}
-    }
+  void _goToSettings() async {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => SettingsPage(
+                options: widget.options,
+                onOptionsChanged: widget.onOptionsChanged,
+                onSignedOut: widget.onSignedOut,
+              ),
+        ));
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the Widget is disposed
+    _locationSubscription?.cancel();
+    super.dispose();
   }
 }
 

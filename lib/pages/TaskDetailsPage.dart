@@ -5,6 +5,7 @@ import 'package:cerf_mobile/constants/secret.dart';
 import 'package:cerf_mobile/model/Task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TaskDetailsPage extends StatefulWidget {
@@ -49,6 +50,9 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
   @override
   Widget build(BuildContext context) {
     Task task = widget.task;
+    final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       key: _scaffoldKey,
       body: CustomScrollView(
@@ -56,12 +60,13 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
           SliverAppBar(
             expandedHeight: _appBarHeight,
             pinned: true,
+            backgroundColor: isDark ? Colors.grey[900] : null,
             actions: <Widget>[
               IconButton(
-                icon: const Icon(Icons.create),
+                icon: Icon(Icons.create),
                 tooltip: 'Edit',
                 onPressed: () {
-                  _scaffoldKey.currentState.showSnackBar(const SnackBar(
+                  _scaffoldKey.currentState.showSnackBar(SnackBar(
                       content:
                           Text("Editing isn't supported in this screen.")));
                 },
@@ -79,7 +84,7 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
 
                   // This gradient ensures that the toolbar icons are distinct
                   // against the background image.
-                  const DecoratedBox(
+                  DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment(0.0, -1.0),
@@ -128,7 +133,8 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                     DetailsItem(
                       tooltip: 'Get Directions',
                       lines: <String>[
-                        "${task.duration} minutes, ${Task.timeOfDayFormat(task.windowStart, task.windowEnd, task.isAllDay)}",
+                        "${task.duration} minutes: ${DateFormat("MMMEd").format(task.windowStart)}",
+                        "${Task.timeOfDayFormat(task.windowStart, task.windowEnd, task.isAllDay)}",
                         'Estimated time: ',
                       ],
                     ),
@@ -142,7 +148,7 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                               bottom: BorderSide(
                                   color: Theme.of(context).dividerColor))),
                       child: Padding(
-                        padding: const EdgeInsets.all(24.0),
+                        padding: EdgeInsets.all(24.0),
                         child: Text(widget.task.notes,
                             style: Theme.of(context).textTheme.caption),
                       ),
@@ -151,10 +157,10 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
               Container(
                 decoration: BoxDecoration(
                     border: Border(
-                        bottom: BorderSide(
-                            color: Theme.of(context).dividerColor))),
+                        bottom:
+                            BorderSide(color: Theme.of(context).dividerColor))),
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: EdgeInsets.all(24.0),
                   child: Column(
                     children: <Widget>[
                       // reword this maybe

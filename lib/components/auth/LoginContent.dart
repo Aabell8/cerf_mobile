@@ -3,9 +3,10 @@ import 'package:cerf_mobile/services/auth_provider.dart';
 import 'package:flutter/material.dart';
 
 class LoginContent extends StatefulWidget {
-  LoginContent({this.onSignedIn});
+  LoginContent({this.onSignedIn, this.onSnackBarMessage});
 
   final VoidCallback onSignedIn;
+  final Function onSnackBarMessage;
 
   @override
   _LoginContentState createState() => _LoginContentState();
@@ -28,14 +29,18 @@ class _LoginContentState extends State<LoginContent> {
       try {
         var auth = AuthProvider.of(context).auth;
 
-        String userId = await auth.loginWithEmailAndPassword(
+        Map<String, String> response = await auth.loginWithEmailAndPassword(
             "Austin6@gmail.com", "Testing123");
-        print('Signed in: $userId');
 
-        if (userId != null) {
+        if (response['error'] != null) {
+          widget.onSnackBarMessage("Error in signing in: ${response['error']}");
+        } else if (response['user'] != null) {
           widget.onSignedIn();
+        } else {
+          widget.onSnackBarMessage("User does not exist");
         }
       } catch (e) {
+        widget.onSnackBarMessage("Error in logging in");
         print('Error: $e');
       }
     }
@@ -66,6 +71,8 @@ class _LoginContentState extends State<LoginContent> {
               ),
               TextFormField(
                 key: Key('login_email'),
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Email',
@@ -79,6 +86,8 @@ class _LoginContentState extends State<LoginContent> {
               ),
               TextFormField(
                 key: Key('login_password'),
+                obscureText: true,
+                textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
