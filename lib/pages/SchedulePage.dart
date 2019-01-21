@@ -46,8 +46,8 @@ class _SchedulePageState extends State<SchedulePage> {
     updateTasks();
   }
 
-  updateTasks() {
-    fetchTasks().then((res) {
+  Future<void> updateTasks() {
+    return fetchTasks().then<void>((res) {
       setState(() {
         tasks = res;
         _isLoading = false;
@@ -113,6 +113,10 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
+  void onRefresh() {
+    updateTasks();
+  }
+
   showSnackBarMessage(String text) {
     _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(text)));
   }
@@ -138,6 +142,7 @@ class _SchedulePageState extends State<SchedulePage> {
             isStarted: _isStarted,
             onStart: onStarted,
             onPause: onPaused,
+            onOptimize: onRefresh,
           )),
       body: !_isLoading
           ? Scrollbar(
@@ -190,7 +195,7 @@ class _SchedulePageState extends State<SchedulePage> {
   @override
   void dispose() {
     // Clean up the controller when the Widget is disposed
-    _locationSubscription.cancel();
+    _locationSubscription?.cancel();
     super.dispose();
   }
 }

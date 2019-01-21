@@ -9,6 +9,7 @@ class ScheduleAppBar extends PreferredSize {
     VoidCallback onStart,
     VoidCallback onOptimize,
     VoidCallback onPause,
+    VoidCallback onNotify
   }) : super(
           preferredSize: Size.fromHeight(48.0),
           child: Material(
@@ -19,7 +20,11 @@ class ScheduleAppBar extends PreferredSize {
                     child: Material(
                       child: InkWell(
                         onTap: () {
-                          print("clicked left button");
+                          if (isStarted) {
+                            onNotify();
+                          } else {
+                            onOptimize();
+                          }
                         },
                         child: Container(
                           height: 48.0,
@@ -34,7 +39,7 @@ class ScheduleAppBar extends PreferredSize {
                                     ),
                                   )
                                 : Text(
-                                    "Optimize",
+                                    "Refresh",
                                     style: TextStyle(
                                       color: AppColors.blueAccent,
                                       fontWeight: FontWeight.bold,

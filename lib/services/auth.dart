@@ -30,7 +30,7 @@ class Auth implements BaseAuth {
     User user;
     try {
       final http.Response response =
-          await runQuery(mutations.login, cookie, variables: variables);
+          await runQuery(mutations.login, "", variables: variables);
       final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
 
       if (parsedRes['error'] != null) {
