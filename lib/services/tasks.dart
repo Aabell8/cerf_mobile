@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 
 Future<List<Task>> fetchTasks() async {
   String cookie = await getMobileCookie();
+  
+  // ? Add current locale date for requesting tasks
   final http.Response response =
       await runQuery(queries.currentUserTasks, cookie);
   Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];

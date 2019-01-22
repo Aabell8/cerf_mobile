@@ -218,7 +218,6 @@ class _NewTaskPageState extends State<NewTaskPage> {
                 SizedBox(height: 24.0),
                 TextFormField(
                   key: Key('address'),
-                  initialValue: "176 St George St", // ! remove
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Address',
@@ -235,7 +234,6 @@ class _NewTaskPageState extends State<NewTaskPage> {
                     Expanded(
                       child: TextFormField(
                         key: Key('city'),
-                        initialValue: "London", // ! remove
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'City',
