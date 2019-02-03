@@ -8,10 +8,15 @@ import 'package:http/http.dart' as http;
 
 Future<List<Task>> fetchTasks() async {
   String cookie = await getMobileCookie();
-  
-  // ? Add current locale date for requesting tasks
+
+  int timeZone = new DateTime.now().timeZoneOffset.inHours;
+
+  Map<String, dynamic> variables = {
+    'timeZone': timeZone,
+  };
+
   final http.Response response =
-      await runQuery(queries.currentUserTasks, cookie);
+      await runQuery(queries.currentUserTasks, cookie, variables: variables);
   Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];
 
   if (jsonResponse['errors'] != null || jsonResponse['error'] != null) {
@@ -49,7 +54,7 @@ Future<Task> createTask(Task task) async {
   if (jsonResponse['errors'] != null || jsonResponse['error'] != null) {
     throw Exception("Error with graphQL query::: ${jsonResponse['errors']}");
   }
-  
+
   jsonResponse = jsonResponse['createTask'];
 
   if (jsonResponse != null) {

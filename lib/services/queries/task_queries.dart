@@ -1,6 +1,6 @@
 String currentUserTasks = """
-  {
-    myTasks {
+  query(\$timeZone: Int) {
+    myTasks(timeZone: \$timeZone) {
       id
       status
       address
