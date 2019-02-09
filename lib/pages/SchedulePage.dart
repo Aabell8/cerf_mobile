@@ -15,8 +15,7 @@ import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 
 class SchedulePage extends StatefulWidget {
-  const SchedulePage(
-      {Key key, this.options, this.onSignedOut, this.onOptionsChanged})
+  SchedulePage({Key key, this.options, this.onSignedOut, this.onOptionsChanged})
       : super(key: key);
 
   final VissOptions options;
@@ -33,11 +32,12 @@ class _SchedulePageState extends State<SchedulePage> {
 
   List<Task> tasks = [];
   bool _isStarted;
+  String _currentTask;
   bool _isLoading;
 
   Map<String, double> _currentLocation;
   StreamSubscription<Map<String, double>> _locationSubscription;
-  Location _location = new Location();
+  Location _location = Location();
 
   void initState() {
     super.initState();
@@ -47,6 +47,9 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   Future<void> updateTasks() {
+    setState(() {
+      _isLoading = true;
+    });
     return fetchTasks().then<void>((res) {
       setState(() {
         tasks = res;
@@ -56,7 +59,8 @@ class _SchedulePageState extends State<SchedulePage> {
       setState(() {
         _isLoading = false;
       });
-      print(e);
+      showSnackBarMessage(
+          "Error in refreshing data from server: \nError code: $e");
     });
   }
 
@@ -83,6 +87,10 @@ class _SchedulePageState extends State<SchedulePage> {
     return TaskListItem(item, context);
   }
 
+  Widget buildExpandedTile(Task item) {
+    return ExpandableTaskListItem(item, context, _currentTask == item.id);
+  }
+
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
       if (newIndex > oldIndex) {
@@ -98,10 +106,9 @@ class _SchedulePageState extends State<SchedulePage> {
     setState(() {
       _locationSubscription =
           _location.onLocationChanged().listen((Map<String, double> result) {
-        setState(() {
-          _currentLocation = result;
-        });
+        _currentLocation = result;
       });
+      _currentTask = tasks[0].id;
       _isStarted = true;
     });
   }
@@ -149,13 +156,13 @@ class _SchedulePageState extends State<SchedulePage> {
               child: _isStarted
                   ? ListView(
                       scrollDirection: Axis.vertical,
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      children: tasks.map(buildListTile).toList(),
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      children: tasks.map(buildExpandedTile).toList(),
                     )
                   : ReorderableListView(
                       onReorder: _onReorder,
                       scrollDirection: Axis.vertical,
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
                       children: tasks.map(buildListTile).toList(),
                     ),
             )
