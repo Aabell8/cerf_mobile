@@ -63,11 +63,11 @@ class Task {
   factory Task.fromJson(Map<String, dynamic> json) {
     DateTime windowStart = DateTime.fromMillisecondsSinceEpoch(
       int.tryParse(json['windowStart']),
-      isUtc: true,
+      // isUtc: true,
     );
     DateTime windowEnd = DateTime.fromMillisecondsSinceEpoch(
       int.tryParse(json['windowEnd']),
-      isUtc: true,
+      // isUtc: true,
     );
     return Task(
       id: json['id'] as String,

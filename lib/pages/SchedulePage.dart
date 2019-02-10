@@ -83,12 +83,47 @@ class _SchedulePageState extends State<SchedulePage> {
     // print(location);
   }
 
+  // List<Task> filterTodo() {
+  //   tasksTodo = tasks
+  //       .where((task) => (task.status != "f" && task.status != "c"))
+  //       .toList();
+  //   return tasksTodo;
+  // }
+
+  // Returns true if another valid task, false if no tasks to do 
+  bool getNextTask() {
+    List<Task> todo = tasks
+        .where((task) => (task.status != "f" && task.status != "c"))
+        .toList();
+    if (todo.isNotEmpty) {
+      setState(() {
+        _currentTask = todo[0].id;
+      });
+      return true;
+    } else {
+      setState(() {
+        _currentTask = "";
+      });
+      return false;
+    }
+  }
+
+  void updateStatus(Task task) {
+    // ? Update status on server
+    getNextTask();
+    // setState(() {
+    //   tasksTodo = filterTodo();
+    //   _currentTask = tasks.isNotEmpty ? tasksTodo[0]?.id : "";
+    // });
+  }
+
   Widget buildListTile(Task item) {
     return TaskListItem(item, context);
   }
 
   Widget buildExpandedTile(Task item) {
-    return ExpandableTaskListItem(item, context, _currentTask == item.id);
+    return ExpandableTaskListItem(
+        item, context, _currentTask == item.id, updateStatus);
   }
 
   void _onReorder(int oldIndex, int newIndex) {
@@ -103,12 +138,19 @@ class _SchedulePageState extends State<SchedulePage> {
 
   void onStarted() async {
     await initPlatformState();
+    if (!getNextTask()) {
+      showSnackBarMessage("No tasks remaining to be completed today");
+      return;
+    }
+    // ? Send started status to server
     setState(() {
       _locationSubscription =
           _location.onLocationChanged().listen((Map<String, double> result) {
         _currentLocation = result;
       });
-      _currentTask = tasks[0].id;
+      // Filter tasks
+      // tasksTodo = filterTodo();
+      // _currentTask = tasksTodo.isNotEmpty ? tasksTodo[0]?.id : "";
       _isStarted = true;
     });
   }

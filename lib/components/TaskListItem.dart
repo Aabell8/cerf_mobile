@@ -10,6 +10,7 @@ Color getColor(String status) {
   if (status == "f") {
     return AppColors.greenBlue.withAlpha(50);
   }
+
   // Cancelled status code
   else if (status == "c") {
     return Colors.orangeAccent.withAlpha(50);
@@ -49,11 +50,12 @@ class TaskListItem extends Card {
 }
 
 class ExpandableTaskListItem extends StatelessWidget {
-  ExpandableTaskListItem(this.task, this.context, this.expanded);
+  ExpandableTaskListItem(this.task, this.context, this.expanded, this.updateStatus);
 
   final Task task;
   final BuildContext context;
   final bool expanded;
+  final ValueChanged<Task> updateStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +95,10 @@ class ExpandableTaskListItem extends StatelessWidget {
                           text: "Cancel",
                           icon: Icons.close,
                           condensed: true,
-                          onPressed: () {},
+                          onPressed: () {
+                            task.status = "c";
+                            updateStatus(task);
+                          },
                         ),
                         DetailsButton(
                           text: "Directions",
@@ -122,7 +127,10 @@ class ExpandableTaskListItem extends StatelessWidget {
                           text: "Complete",
                           icon: Icons.check,
                           condensed: true,
-                          onPressed: () {},
+                          onPressed: () {
+                            task.status = "f";
+                            updateStatus(task);
+                          },
                         ),
                       ],
                     )
@@ -130,6 +138,7 @@ class ExpandableTaskListItem extends StatelessWidget {
               SizedBox(height: 8.0)
             ],
           ),
+          color: getColor(task.status)
         ),
       ),
     );
