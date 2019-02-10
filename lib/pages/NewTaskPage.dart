@@ -95,15 +95,15 @@ class _NewTaskPageState extends State<NewTaskPage> {
     } else {
       form.save();
       if (!task.isAllDay) {
-        task.windowStart = DateTime.utc(
-            now.year, now.month, now.day, startTime?.hour, startTime?.minute);
-        task.windowEnd = DateTime.utc(
-            now.year, now.month, now.day, endTime?.hour, endTime?.minute);
+        task.windowStart = DateTime(
+            now.year, now.month, now.day, startTime?.hour, startTime?.minute).toUtc();
+        task.windowEnd = DateTime(
+            now.year, now.month, now.day, endTime?.hour, endTime?.minute).toUtc();
       } else {
         task.windowStart =
-            DateTime.utc(now.year, now.month, now.day, now.hour, now.minute);
+            DateTime(now.year, now.month, now.day, now.hour, now.minute).toUtc();
         task.windowEnd =
-            DateTime.utc(now.year, now.month, now.day, now.hour, now.minute);
+            DateTime(now.year, now.month, now.day, now.hour, now.minute).toUtc();
       }
       final uri = Uri(
         scheme: "https",
