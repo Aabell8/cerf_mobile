@@ -90,7 +90,7 @@ class _SchedulePageState extends State<SchedulePage> {
   //   return tasksTodo;
   // }
 
-  // Returns true if another valid task, false if no tasks to do 
+  // Returns true if another valid task, false if no tasks to do
   bool getNextTask() {
     List<Task> todo = tasks
         .where((task) => (task.status != "f" && task.status != "c"))
@@ -109,16 +109,15 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   void updateStatus(Task task) {
-    // ? Update status on server
+    // Update status on server
+    updateTaskStatus(task).catchError((err) {
+      showSnackBarMessage("Error in updating task status.\nError code: $err");
+    });
     getNextTask();
-    // setState(() {
-    //   tasksTodo = filterTodo();
-    //   _currentTask = tasks.isNotEmpty ? tasksTodo[0]?.id : "";
-    // });
   }
 
   Widget buildListTile(Task item) {
-    return TaskListItem(item, context);
+    return TaskListItem(item, context, updateStatus);
   }
 
   Widget buildExpandedTile(Task item) {
@@ -178,21 +177,22 @@ class _SchedulePageState extends State<SchedulePage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-          title: Text("Schedule"),
-          backgroundColor: isDark ? Colors.grey[900] : null,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () => _goToSettings(),
-            )
-          ],
-          bottom: ScheduleAppBar(
-            dark: isDark,
-            isStarted: _isStarted,
-            onStart: onStarted,
-            onPause: onPaused,
-            onOptimize: onRefresh,
-          )),
+        title: Text("Schedule"),
+        backgroundColor: isDark ? Colors.grey[900] : null,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () => _goToSettings(),
+          )
+        ],
+        bottom: ScheduleAppBar(
+          dark: isDark,
+          isStarted: _isStarted,
+          onStart: onStarted,
+          onPause: onPaused,
+          onOptimize: onRefresh,
+        ),
+      ),
       body: !_isLoading
           ? Scrollbar(
               child: _isStarted

@@ -16,6 +16,27 @@ String createTask = """
       windowEnd
       duration
       notes
+      status
+    }
+  }
+"""
+    .replaceAll('\n', ' ');
+
+String updateTaskStatus = """
+  mutation(\$id: ID!, \$status: String) {
+    updateTask (id: \$id, status: \$status) {
+      id
+      address
+      city
+      province
+      lat
+      lng
+      isAllDay
+      windowStart
+      windowEnd
+      duration
+      notes
+      status
     }
   }
 """

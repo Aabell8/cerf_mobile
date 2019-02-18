@@ -87,8 +87,8 @@ class Task {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'windowStart': windowStart,
-        'windowEnd': windowEnd,
+        'windowStart': windowStart.toString(),
+        'windowEnd': windowEnd.toString(),
         'duration': duration,
         'address': address,
         'city': city,

@@ -19,21 +19,53 @@ Color getColor(String status) {
 }
 
 class TaskListItem extends Card {
-  TaskListItem(Task item, BuildContext context)
+  TaskListItem(Task item, BuildContext context, ValueChanged<Task> updateStatus)
       : super(
           key: Key(item.id),
           child: Container(
             child: ListTile(
+              dense: true,
               isThreeLine: true,
+              leading: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
+                child: Icon(Icons.drag_handle),
+              ),
               title: Text(
                 '${item.address}',
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: Text(
                 '${item.duration} minutes ${Task.timeOfDayFormat(item.windowStart, item.windowEnd, item.isAllDay)}',
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+              trailing: IconButton(
+                padding: EdgeInsets.all(0.0),
+                icon: Icon(Icons.undo),
+                color: AppColors.blueAccent,
+                onPressed: () {
+                  if (item.status != "a") {
+                    item.status = "a";
+                    updateStatus(item);
+                  }
+                },
+              ),
+              // trailing: PopupMenuButton<OverflowOption>(
+              //   offset:
+              //       Offset(0.0, 88.0),
+              //   padding: EdgeInsets.zero,
+              //   onSelected: (str) {
+              //     item.status = "a";
+              //     updateStatus(item);
+              //   },
+              //   itemBuilder: (BuildContext context) {
+              //     return [
+              //       PopupMenuItem<OverflowOption>(
+              //           value: OverflowOption.resetStatus,
+              //           child: Text("Reset status")),
+              //     ];
+              //   },
+              // ),
               onTap: () {
                 Navigator.push(
                   context,
@@ -44,13 +76,14 @@ class TaskListItem extends Card {
                 );
               },
             ),
-            color: getColor(item.status)
+            color: getColor(item.status),
           ),
         );
 }
 
 class ExpandableTaskListItem extends StatelessWidget {
-  ExpandableTaskListItem(this.task, this.context, this.expanded, this.updateStatus);
+  ExpandableTaskListItem(
+      this.task, this.context, this.expanded, this.updateStatus);
 
   final Task task;
   final BuildContext context;
@@ -135,10 +168,10 @@ class ExpandableTaskListItem extends StatelessWidget {
                       ],
                     )
                   : Container(),
-              SizedBox(height: 8.0)
+              SizedBox(height: 16.0)
             ],
           ),
-          color: getColor(task.status)
+          color: getColor(task.status),
         ),
       ),
     );

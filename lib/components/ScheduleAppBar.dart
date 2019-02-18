@@ -21,7 +21,7 @@ class ScheduleAppBar extends PreferredSize {
                       child: InkWell(
                         onTap: () {
                           if (isStarted) {
-                            onNotify();
+                            // onNotify();
                           } else {
                             onOptimize();
                           }
