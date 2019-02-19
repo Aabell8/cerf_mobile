@@ -5,18 +5,22 @@ class VissOptions {
   VissOptions({
     this.theme,
     this.platform,
+    this.updateNotes = false,
   });
 
   final VissTheme theme;
   final TargetPlatform platform;
+  final bool updateNotes;
 
   VissOptions copyWith({
     VissTheme theme,
     TargetPlatform platform,
+    bool updateNotes,
   }) {
     return VissOptions(
       theme: theme ?? this.theme,
       platform: platform ?? this.platform,
+      updateNotes: updateNotes ?? this.updateNotes,
     );
   }
 
@@ -31,6 +35,7 @@ class VissOptions {
   int get hashCode => hashValues(
         theme,
         platform,
+        updateNotes,
       );
 
   @override

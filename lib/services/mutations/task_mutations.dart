@@ -23,8 +23,8 @@ String createTask = """
     .replaceAll('\n', ' ');
 
 String updateTaskStatus = """
-  mutation(\$id: ID!, \$status: String) {
-    updateTask (id: \$id, status: \$status) {
+  mutation(\$id: ID!, \$status: String, \$notes: String) {
+    updateTask (id: \$id, status: \$status, notes: \$notes) {
       id
       address
       city

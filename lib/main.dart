@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() => runApp(MyApp());
 
 const _themeKey = "theme_option";
+const _notesChangedKey = "notes_changed_option";
 
 class MyApp extends StatefulWidget {
   @override
@@ -28,16 +29,19 @@ class MyAppState extends State<MyApp> {
     final SharedPreferences prefs = await _prefs;
 
     bool _theme = prefs.getBool(_themeKey);
+    bool _notesChanged = prefs.getBool(_notesChangedKey);
     if (_theme != null) {
       setState(() {
-        _options =
-            _options.copyWith(theme: _theme ? kDarkVissTheme : kLightVissTheme);
+        _options = _options.copyWith(
+            theme: _theme ? kDarkVissTheme : kLightVissTheme,
+            updateNotes: _notesChanged);
       });
     } else {
       setState(() {
         _options = VissOptions(
           theme: kLightVissTheme,
           platform: defaultTargetPlatform,
+          updateNotes: _notesChanged,
         );
       });
     }
@@ -46,6 +50,7 @@ class MyAppState extends State<MyApp> {
   void _setOptions(VissOptions options) async {
     final SharedPreferences prefs = await _prefs;
     prefs.setBool(_themeKey, options.theme == kDarkVissTheme);
+    prefs.setBool(_notesChangedKey, options.updateNotes);
   }
 
   @override
@@ -54,6 +59,7 @@ class MyAppState extends State<MyApp> {
     _options = VissOptions(
       theme: null,
       platform: defaultTargetPlatform,
+      updateNotes: false,
     );
     _getOptions();
   }

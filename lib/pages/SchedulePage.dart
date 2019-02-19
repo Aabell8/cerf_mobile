@@ -34,6 +34,7 @@ class _SchedulePageState extends State<SchedulePage> {
   bool _isStarted;
   String _currentTask;
   bool _isLoading;
+  TextEditingController _dialogController;
 
   Map<String, double> _currentLocation;
   StreamSubscription<Map<String, double>> _locationSubscription;
@@ -43,6 +44,7 @@ class _SchedulePageState extends State<SchedulePage> {
     super.initState();
     _isStarted = false;
     _isLoading = true;
+    _dialogController = TextEditingController();
     updateTasks();
   }
 
@@ -108,7 +110,34 @@ class _SchedulePageState extends State<SchedulePage> {
     }
   }
 
-  void updateStatus(Task task) {
+  void updateStatus(Task task) async {
+    // If update notes on task status changed
+    if (task.status != "a" && widget.options.updateNotes) {
+      _dialogController.text = task.notes;
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Update Notes"),
+              content: TextField(
+                decoration: new InputDecoration(
+                  hintText: "Enter updates notes for task",
+                  border: OutlineInputBorder(),
+                ),
+                controller: _dialogController,
+                maxLines: 8,
+              ),
+              actions: <Widget>[
+                FlatButton(
+                    child: Text('SAVE'),
+                    onPressed: () {
+                      task.notes = _dialogController.text;
+                      Navigator.of(context).pop();
+                    }),
+              ],
+            ),
+      );
+    }
+
     // Update status on server
     updateTaskStatus(task).catchError((err) {
       showSnackBarMessage("Error in updating task status.\nError code: $err");
