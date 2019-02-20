@@ -39,7 +39,7 @@ class ScheduleAppBar extends PreferredSize {
                                     ),
                                   )
                                 : Text(
-                                    "Refresh",
+                                    "Optimize",
                                     style: TextStyle(
                                       color: AppColors.blueAccent,
                                       fontWeight: FontWeight.bold,

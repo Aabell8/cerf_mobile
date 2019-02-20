@@ -13,6 +13,7 @@ import 'package:cerf_mobile/model/Task.dart';
 import 'package:cerf_mobile/components/TaskListItem.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class SchedulePage extends StatefulWidget {
   SchedulePage({Key key, this.options, this.onSignedOut, this.onOptionsChanged})
@@ -49,9 +50,9 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   Future<void> updateTasks() {
-    setState(() {
-      _isLoading = true;
-    });
+    // setState(() {
+    //   _isLoading = true;
+    // });
     return fetchTasks().then<void>((res) {
       setState(() {
         tasks = res;
@@ -66,11 +67,14 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
-  initPlatformState() async {
+  Future<void> initPlatformState() async {
     Map<String, double> location;
     try {
-      await _location.hasPermission();
-      location = await _location.getLocation();
+      bool permission = await _location.hasPermission();
+      if (permission) {
+        // ? Error in starting on iOS, this function doesnt return 
+        location = await _location.getLocation();
+      }
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
         showSnackBarMessage(
@@ -82,6 +86,7 @@ class _SchedulePageState extends State<SchedulePage> {
       location = null;
     }
 
+    return;
     // print(location);
   }
 
@@ -120,7 +125,7 @@ class _SchedulePageState extends State<SchedulePage> {
               title: Text("Update Notes"),
               content: TextField(
                 decoration: new InputDecoration(
-                  hintText: "Enter updates notes for task",
+                  hintText: "Enter updated notes for task",
                   border: OutlineInputBorder(),
                 ),
                 controller: _dialogController,
@@ -165,7 +170,8 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   void onStarted() async {
-    await initPlatformState();
+    // Changed to be async but check for location in function
+    initPlatformState();
     if (!getNextTask()) {
       showSnackBarMessage("No tasks remaining to be completed today");
       return;
@@ -190,8 +196,9 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
-  void onRefresh() {
-    updateTasks();
+  onOptimize() {
+    // ? Set up optimization of tasks
+    return;
   }
 
   showSnackBarMessage(String text) {
@@ -219,23 +226,48 @@ class _SchedulePageState extends State<SchedulePage> {
           isStarted: _isStarted,
           onStart: onStarted,
           onPause: onPaused,
-          onOptimize: onRefresh,
+          onOptimize: onOptimize,
         ),
       ),
       body: !_isLoading
           ? Scrollbar(
-              child: _isStarted
-                  ? ListView(
-                      scrollDirection: Axis.vertical,
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      children: tasks.map(buildExpandedTile).toList(),
-                    )
-                  : ReorderableListView(
-                      onReorder: _onReorder,
-                      scrollDirection: Axis.vertical,
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      children: tasks.map(buildListTile).toList(),
+              child: LiquidPullToRefresh(
+                color: AppColors.greenBlue,
+                showChildOpacityTransition: true,
+                springAnimationDurationInMilliseconds: 300,
+                onRefresh: updateTasks,
+                child: CustomScrollView(
+                  slivers: <Widget>[
+                    SliverList(
+                      delegate: SliverChildListDelegate(
+                        [
+                          // ? This solution should not be final
+                          // ? and setting height of content should not be hard
+                          // ? coded. Works on all tested devices to work so far
+                          Container(
+                            height: MediaQuery.of(context).size.height - 130,
+                            child: _isStarted
+                                ? ListView(
+                                    scrollDirection: Axis.vertical,
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 8.0),
+                                    children:
+                                        tasks.map(buildExpandedTile).toList(),
+                                  )
+                                : ReorderableListView(
+                                    onReorder: _onReorder,
+                                    scrollDirection: Axis.vertical,
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 8.0),
+                                    children: tasks.map(buildListTile).toList(),
+                                  ),
+                          ),
+                        ],
+                      ),
                     ),
+                  ],
+                ),
+              ),
             )
           : Center(child: CircularProgressIndicator()),
       floatingActionButton: FloatingActionButton(
@@ -245,7 +277,7 @@ class _SchedulePageState extends State<SchedulePage> {
           });
         },
         child: Icon(Icons.add),
-        backgroundColor: AppColors.blueAccent,
+        backgroundColor: isDark ? AppColors.greenBlue : AppColors.blueAccent,
       ),
     );
   }
