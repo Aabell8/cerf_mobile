@@ -13,7 +13,6 @@ import 'package:cerf_mobile/model/Task.dart';
 import 'package:cerf_mobile/components/TaskListItem.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class SchedulePage extends StatefulWidget {
   SchedulePage({Key key, this.options, this.onSignedOut, this.onOptionsChanged})
@@ -36,6 +35,7 @@ class _SchedulePageState extends State<SchedulePage> {
   String _currentTask;
   bool _isLoading;
   TextEditingController _dialogController;
+  ScrollController _scrollController;
 
   Map<String, double> _currentLocation;
   StreamSubscription<Map<String, double>> _locationSubscription;
@@ -46,13 +46,14 @@ class _SchedulePageState extends State<SchedulePage> {
     _isStarted = false;
     _isLoading = true;
     _dialogController = TextEditingController();
+    _scrollController = ScrollController();
     updateTasks();
   }
 
   Future<void> updateTasks() {
-    // setState(() {
-    //   _isLoading = true;
-    // });
+    setState(() {
+      _isLoading = true;
+    });
     return fetchTasks().then<void>((res) {
       setState(() {
         tasks = res;
@@ -72,7 +73,7 @@ class _SchedulePageState extends State<SchedulePage> {
     try {
       bool permission = await _location.hasPermission();
       if (permission) {
-        // ? Error in starting on iOS, this function doesnt return 
+        // ? Error in starting on iOS, this function doesnt return
         location = await _location.getLocation();
       }
     } on PlatformException catch (e) {
@@ -115,6 +116,23 @@ class _SchedulePageState extends State<SchedulePage> {
     }
   }
 
+  void animateToCurrentTask(bool initial) {
+    int i = tasks.indexWhere((task) => task.id == _currentTask);
+    // Not dynamically set and based on default size
+    double itemSize = 98.0;
+    if (initial) {
+      _scrollController = ScrollController(initialScrollOffset: i * itemSize);
+      return;
+    }
+    if (_isStarted) {
+      _scrollController.animateTo(
+        i * itemSize,
+        duration: Duration(seconds: 1),
+        curve: Curves.ease,
+      );
+    }
+  }
+
   void updateStatus(Task task) async {
     // If update notes on task status changed
     if (task.status != "a" && widget.options.updateNotes) {
@@ -148,6 +166,7 @@ class _SchedulePageState extends State<SchedulePage> {
       showSnackBarMessage("Error in updating task status.\nError code: $err");
     });
     getNextTask();
+    animateToCurrentTask(false);
   }
 
   Widget buildListTile(Task item) {
@@ -176,6 +195,8 @@ class _SchedulePageState extends State<SchedulePage> {
       showSnackBarMessage("No tasks remaining to be completed today");
       return;
     }
+    animateToCurrentTask(true);
+
     // ? Send started status to server
     setState(() {
       _locationSubscription =
@@ -219,6 +240,10 @@ class _SchedulePageState extends State<SchedulePage> {
           IconButton(
             icon: Icon(Icons.settings),
             onPressed: () => _goToSettings(),
+          ),
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: updateTasks,
           )
         ],
         bottom: ScheduleAppBar(
@@ -231,55 +256,35 @@ class _SchedulePageState extends State<SchedulePage> {
       ),
       body: !_isLoading
           ? Scrollbar(
-              child: LiquidPullToRefresh(
-                color: AppColors.greenBlue,
-                showChildOpacityTransition: false,
-                
-                springAnimationDurationInMilliseconds: 300,
-                onRefresh: updateTasks,
-                child: CustomScrollView(
-                  slivers: <Widget>[
-                    SliverList(
-                      delegate: SliverChildListDelegate(
-                        [
-                          // ? This solution should not be final
-                          // ? and setting height of content should not be hard
-                          // ? coded. Works on all tested devices to work so far
-                          Container(
-                            height: MediaQuery.of(context).size.height - 130,
-                            child: _isStarted
-                                ? ListView(
-                                    scrollDirection: Axis.vertical,
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 8.0),
-                                    children:
-                                        tasks.map(buildExpandedTile).toList(),
-                                  )
-                                : ReorderableListView(
-                                    onReorder: _onReorder,
-                                    scrollDirection: Axis.vertical,
-                                    padding:
-                                        EdgeInsets.symmetric(vertical: 8.0),
-                                    children: tasks.map(buildListTile).toList(),
-                                  ),
-                          ),
-                        ],
+              child: Container(
+                child: _isStarted
+                    ? ListView(
+                        scrollDirection: Axis.vertical,
+                        controller: _scrollController,
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        children: tasks.map(buildExpandedTile).toList(),
+                      )
+                    : ReorderableListView(
+                        onReorder: _onReorder,
+                        scrollDirection: Axis.vertical,
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        children: tasks.map(buildListTile).toList(),
                       ),
-                    ),
-                  ],
-                ),
               ),
             )
           : Center(child: CircularProgressIndicator()),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _createNewTask().then((item) {
-            updateTasks();
-          });
-        },
-        child: Icon(Icons.add),
-        backgroundColor: isDark ? AppColors.greenBlue : AppColors.blueAccent,
-      ),
+      floatingActionButton: !_isStarted
+          ? FloatingActionButton(
+              onPressed: () {
+                _createNewTask().then((item) {
+                  updateTasks();
+                });
+              },
+              child: Icon(Icons.add),
+              backgroundColor:
+                  isDark ? AppColors.greenBlue : AppColors.blueAccent,
+            )
+          : null,
     );
   }
 
