@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 
 class Task {
   String id;
+  String name;
+  int order;
   bool isAllDay;
   DateTime windowStart;
   DateTime windowEnd;
@@ -17,6 +19,8 @@ class Task {
 
   Task({
     this.id,
+    this.name,
+    this.order,
     this.windowStart,
     this.windowEnd,
     this.duration: 0,
@@ -32,6 +36,8 @@ class Task {
 
   Task copyWith({
     id,
+    name,
+    order,
     windowStart,
     windowEnd,
     duration,
@@ -46,6 +52,8 @@ class Task {
   }) {
     return Task(
       id: id ?? this.id,
+      name: name ?? this.name,
+      order: order ?? this.order,
       windowStart: windowStart ?? this.windowStart,
       windowEnd: windowEnd ?? this.windowEnd,
       duration: duration ?? this.duration,
@@ -71,6 +79,8 @@ class Task {
     );
     return Task(
       id: json['id'] as String,
+      name: json['name'] as String,
+      order: json['order'] as int,
       windowStart: windowStart,
       windowEnd: windowEnd,
       duration: json['duration'] as int,
@@ -87,6 +97,8 @@ class Task {
 
   Map<String, dynamic> toJson() => {
         'id': id,
+        'name': name,
+        'order': order,
         'windowStart': windowStart.toString(),
         'windowEnd': windowEnd.toString(),
         'duration': duration,

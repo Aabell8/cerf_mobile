@@ -233,7 +233,8 @@ class _SchedulePageState extends State<SchedulePage> {
           ? Scrollbar(
               child: LiquidPullToRefresh(
                 color: AppColors.greenBlue,
-                showChildOpacityTransition: true,
+                showChildOpacityTransition: false,
+                
                 springAnimationDurationInMilliseconds: 300,
                 onRefresh: updateTasks,
                 child: CustomScrollView(
