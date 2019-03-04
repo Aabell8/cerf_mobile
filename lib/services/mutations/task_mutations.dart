@@ -45,3 +45,10 @@ String updateTaskStatus = """
   }
 """
     .replaceAll('\n', ' ');
+
+String updateTaskOrder = """
+  mutation (\$ids: [ID!]!) {
+    updateTaskOrder (ids: \$ids)
+  }
+"""
+    .replaceAll('\n', ' ');
