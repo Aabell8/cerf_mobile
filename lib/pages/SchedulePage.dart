@@ -15,8 +15,7 @@ import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 
 class SchedulePage extends StatefulWidget {
-  const SchedulePage(
-      {Key key, this.options, this.onSignedOut, this.onOptionsChanged})
+  SchedulePage({Key key, this.options, this.onSignedOut, this.onOptionsChanged})
       : super(key: key);
 
   final VissOptions options;
@@ -33,20 +32,28 @@ class _SchedulePageState extends State<SchedulePage> {
 
   List<Task> tasks = [];
   bool _isStarted;
+  String _currentTask;
   bool _isLoading;
+  TextEditingController _dialogController;
+  ScrollController _scrollController;
 
   Map<String, double> _currentLocation;
   StreamSubscription<Map<String, double>> _locationSubscription;
-  Location _location = new Location();
+  Location _location = Location();
 
   void initState() {
     super.initState();
     _isStarted = false;
     _isLoading = true;
+    _dialogController = TextEditingController();
+    _scrollController = ScrollController();
     updateTasks();
   }
 
   Future<void> updateTasks() {
+    setState(() {
+      _isLoading = true;
+    });
     return fetchTasks().then<void>((res) {
       setState(() {
         tasks = res;
@@ -56,15 +63,19 @@ class _SchedulePageState extends State<SchedulePage> {
       setState(() {
         _isLoading = false;
       });
-      print(e);
+      showSnackBarMessage(
+          "Error in refreshing data from server: \nError code: $e");
     });
   }
 
-  initPlatformState() async {
+  Future<void> initPlatformState() async {
     Map<String, double> location;
     try {
-      await _location.hasPermission();
-      location = await _location.getLocation();
+      bool permission = await _location.hasPermission();
+      if (permission) {
+        // ? Error in starting on iOS, this function doesnt return
+        location = await _location.getLocation();
+      }
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
         showSnackBarMessage(
@@ -76,11 +87,95 @@ class _SchedulePageState extends State<SchedulePage> {
       location = null;
     }
 
+    return;
     // print(location);
   }
 
+  // List<Task> filterTodo() {
+  //   tasksTodo = tasks
+  //       .where((task) => (task.status != "f" && task.status != "c"))
+  //       .toList();
+  //   return tasksTodo;
+  // }
+
+  // Returns true if another valid task, false if no tasks to do
+  bool getNextTask() {
+    List<Task> todo = tasks
+        .where((task) => (task.status != "f" && task.status != "c"))
+        .toList();
+    if (todo.isNotEmpty) {
+      setState(() {
+        _currentTask = todo[0].id;
+      });
+      return true;
+    } else {
+      setState(() {
+        _currentTask = "";
+      });
+      return false;
+    }
+  }
+
+  void animateToCurrentTask(bool initial) {
+    int i = tasks.indexWhere((task) => task.id == _currentTask);
+    // Not dynamically set and based on default size
+    double itemSize = 98.0;
+    if (initial) {
+      _scrollController = ScrollController(initialScrollOffset: i * itemSize);
+      return;
+    }
+    if (_isStarted) {
+      _scrollController.animateTo(
+        i * itemSize,
+        duration: Duration(seconds: 1),
+        curve: Curves.ease,
+      );
+    }
+  }
+
+  void updateStatus(Task task) async {
+    // If update notes on task status changed
+    if (task.status != "a" && widget.options.updateNotes) {
+      _dialogController.text = task.notes;
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text("Update Notes"),
+              content: TextField(
+                decoration: new InputDecoration(
+                  hintText: "Enter updated notes for task",
+                  border: OutlineInputBorder(),
+                ),
+                controller: _dialogController,
+                maxLines: 8,
+              ),
+              actions: <Widget>[
+                FlatButton(
+                    child: Text('SAVE'),
+                    onPressed: () {
+                      task.notes = _dialogController.text;
+                      Navigator.of(context).pop();
+                    }),
+              ],
+            ),
+      );
+    }
+
+    // Update status on server
+    updateTaskStatus(task).catchError((err) {
+      showSnackBarMessage("Error in updating task status.\nError code: $err");
+    });
+    getNextTask();
+    animateToCurrentTask(false);
+  }
+
   Widget buildListTile(Task item) {
-    return TaskListItem(item, context);
+    return TaskListItem(item, context, updateStatus);
+  }
+
+  Widget buildExpandedTile(Task item) {
+    return ExpandableTaskListItem(
+        item, context, _currentTask == item.id, updateStatus);
   }
 
   void _onReorder(int oldIndex, int newIndex) {
@@ -94,14 +189,23 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   void onStarted() async {
-    await initPlatformState();
+    // Changed to be async but check for location in function
+    initPlatformState();
+    if (!getNextTask()) {
+      showSnackBarMessage("No tasks remaining to be completed today");
+      return;
+    }
+    animateToCurrentTask(true);
+
+    // ? Send started status to server
     setState(() {
       _locationSubscription =
           _location.onLocationChanged().listen((Map<String, double> result) {
-        setState(() {
-          _currentLocation = result;
-        });
+        _currentLocation = result;
       });
+      // Filter tasks
+      // tasksTodo = filterTodo();
+      // _currentTask = tasksTodo.isNotEmpty ? tasksTodo[0]?.id : "";
       _isStarted = true;
     });
   }
@@ -113,8 +217,9 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
-  void onRefresh() {
-    updateTasks();
+  onOptimize() {
+    // ? Set up optimization of tasks
+    return;
   }
 
   showSnackBarMessage(String text) {
@@ -129,46 +234,57 @@ class _SchedulePageState extends State<SchedulePage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-          title: Text("Schedule"),
-          backgroundColor: isDark ? Colors.grey[900] : null,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () => _goToSettings(),
-            )
-          ],
-          bottom: ScheduleAppBar(
-            dark: isDark,
-            isStarted: _isStarted,
-            onStart: onStarted,
-            onPause: onPaused,
-            onOptimize: onRefresh,
-          )),
+        title: Text("Schedule"),
+        backgroundColor: isDark ? Colors.grey[900] : null,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () => _goToSettings(),
+          ),
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: updateTasks,
+          )
+        ],
+        bottom: ScheduleAppBar(
+          dark: isDark,
+          isStarted: _isStarted,
+          onStart: onStarted,
+          onPause: onPaused,
+          onOptimize: onOptimize,
+        ),
+      ),
       body: !_isLoading
           ? Scrollbar(
-              child: _isStarted
-                  ? ListView(
-                      scrollDirection: Axis.vertical,
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      children: tasks.map(buildListTile).toList(),
-                    )
-                  : ReorderableListView(
-                      onReorder: _onReorder,
-                      scrollDirection: Axis.vertical,
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      children: tasks.map(buildListTile).toList(),
-                    ),
+              child: Container(
+                child: _isStarted
+                    ? ListView(
+                        scrollDirection: Axis.vertical,
+                        controller: _scrollController,
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        children: tasks.map(buildExpandedTile).toList(),
+                      )
+                    : ReorderableListView(
+                        onReorder: _onReorder,
+                        scrollDirection: Axis.vertical,
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        children: tasks.map(buildListTile).toList(),
+                      ),
+              ),
             )
           : Center(child: CircularProgressIndicator()),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _createNewTask().then((item) {
-            updateTasks();
-          });
-        },
-        child: Icon(Icons.add),
-        backgroundColor: AppColors.blueAccent,
-      ),
+      floatingActionButton: !_isStarted
+          ? FloatingActionButton(
+              onPressed: () {
+                _createNewTask().then((item) {
+                  updateTasks();
+                });
+              },
+              child: Icon(Icons.add),
+              backgroundColor:
+                  isDark ? AppColors.greenBlue : AppColors.blueAccent,
+            )
+          : null,
     );
   }
 

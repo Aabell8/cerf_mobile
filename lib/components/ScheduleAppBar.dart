@@ -21,7 +21,7 @@ class ScheduleAppBar extends PreferredSize {
                       child: InkWell(
                         onTap: () {
                           if (isStarted) {
-                            onNotify();
+                            // onNotify();
                           } else {
                             onOptimize();
                           }
@@ -39,7 +39,7 @@ class ScheduleAppBar extends PreferredSize {
                                     ),
                                   )
                                 : Text(
-                                    "Refresh",
+                                    "Optimize",
                                     style: TextStyle(
                                       color: AppColors.blueAccent,
                                       fontWeight: FontWeight.bold,

@@ -15,8 +15,7 @@ ThemeData _buildDarkTheme() {
   const Color primaryColor = AppColors.greenBlue;
   const Color secondaryColor = AppColors.blueAccent;
   final ThemeData base = ThemeData.dark();
-  // Change button color scheme to dark once outline button is changed
-  final ColorScheme colorScheme = const ColorScheme.light().copyWith(
+  final ColorScheme colorScheme = const ColorScheme.dark().copyWith(
     primary: primaryColor,
     secondary: secondaryColor,
   );

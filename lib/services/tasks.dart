@@ -8,10 +8,15 @@ import 'package:http/http.dart' as http;
 
 Future<List<Task>> fetchTasks() async {
   String cookie = await getMobileCookie();
-  
-  // ? Add current locale date for requesting tasks
+
+  int timeZone = new DateTime.now().timeZoneOffset.inHours;
+
+  Map<String, dynamic> variables = {
+    'timeZone': timeZone,
+  };
+
   final http.Response response =
-      await runQuery(queries.currentUserTasks, cookie);
+      await runQuery(queries.currentUserTasks, cookie, variables: variables);
   Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];
 
   if (jsonResponse['errors'] != null || jsonResponse['error'] != null) {
@@ -29,28 +34,39 @@ Future<List<Task>> fetchTasks() async {
 Future<Task> createTask(Task task) async {
   String cookie = await getMobileCookie();
 
-  Map<String, dynamic> taskMap = {
-    "isAllDay": task.isAllDay,
-    "windowStart": task.windowStart.toString(),
-    "windowEnd": task.windowEnd.toString(),
-    "duration": task.duration,
-    "address": task.address,
-    "city": task.city,
-    "province": task.province,
-    "lat": task.lat,
-    "lng": task.lng,
-    "notes": task.notes ?? "",
-    "status": task.status ?? "a",
-  };
+  Map<String, dynamic> taskMap = task.toJson();
 
   final http.Response response =
       await runQuery(mutations.createTask, cookie, variables: taskMap);
+
   Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];
   if (jsonResponse['errors'] != null || jsonResponse['error'] != null) {
     throw Exception("Error with graphQL query::: ${jsonResponse['errors']}");
   }
-  
+
   jsonResponse = jsonResponse['createTask'];
+
+  if (jsonResponse != null) {
+    return Task.fromJson(jsonResponse);
+  } else {
+    return null;
+  }
+}
+
+Future<Task> updateTaskStatus(Task task) async {
+  String cookie = await getMobileCookie();
+
+  Map<String, dynamic> taskMap = task.toJson();
+
+  final http.Response response =
+      await runQuery(mutations.updateTaskStatus, cookie, variables: taskMap);
+
+  Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];
+  if (jsonResponse['errors'] != null || jsonResponse['error'] != null) {
+    throw Exception("Error with graphQL query::: ${jsonResponse['errors']}");
+  }
+
+  jsonResponse = jsonResponse['updateTask'];
 
   if (jsonResponse != null) {
     return Task.fromJson(jsonResponse);

@@ -24,30 +24,40 @@ class SettingsPage extends StatelessWidget {
         title: Text('Settings'),
         backgroundColor: isDark ? Colors.grey[900] : null,
       ),
-      body:
-          ListView(padding: EdgeInsets.only(bottom: 124.0), children: <Widget>[
-        _Heading('Display'),
-        _ThemeItem(options, onOptionsChanged),
-        Divider(),
-        _Heading('Account'),
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: RaisedButton(
-                    key: Key('logoutButton'),
-                    child: Text('LOGOUT'),
-                    color: Theme.of(context).primaryColor,
-                    onPressed: () {
-                      onSignedOut();
-                      Navigator.pop(context);
-                    }),
-              ),
-            ],
+      body: ListView(
+        padding: EdgeInsets.only(bottom: 124.0),
+        children: <Widget>[
+          _Heading('Display'),
+          _ThemeItem(options, onOptionsChanged),
+          Divider(),
+          _Heading('Account'),
+          _BooleanItem(
+            'Update task notes on status update',
+            options.updateNotes,
+            (bool value) {
+              onOptionsChanged(options.copyWith(updateNotes: value));
+            },
           ),
-        ),
-      ]),
+          SizedBox(height: 8.0),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: RaisedButton(
+                      key: Key('logoutButton'),
+                      child: Text('LOGOUT'),
+                      color: Theme.of(context).primaryColor,
+                      onPressed: () {
+                        onSignedOut();
+                        Navigator.pop(context);
+                      }),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -99,7 +109,6 @@ class _Heading extends StatelessWidget {
 }
 
 double _kItemHeight = 48.0;
-EdgeInsetsDirectional _kItemPadding = EdgeInsetsDirectional.only(start: 56.0);
 
 class _OptionsItem extends StatelessWidget {
   _OptionsItem({Key key, this.child}) : super(key: key);
@@ -113,7 +122,7 @@ class _OptionsItem extends StatelessWidget {
     return MergeSemantics(
       child: Container(
         constraints: BoxConstraints(minHeight: _kItemHeight * textScaleFactor),
-        padding: _kItemPadding,
+        padding: EdgeInsets.fromLTRB(32.0, 0, 16.0, 0),
         alignment: AlignmentDirectional.centerStart,
         child: DefaultTextStyle(
           style: DefaultTextStyle.of(context).style,
