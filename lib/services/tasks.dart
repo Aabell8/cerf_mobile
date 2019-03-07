@@ -91,7 +91,6 @@ Future<bool> updateTaskOrder(List<Task> tasks) async {
   }
 
   if (jsonResponse['updateTaskOrder'].toString() == "true") {
-    print("true response");
     return true;
   }
   return false;

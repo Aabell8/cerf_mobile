@@ -30,21 +30,24 @@ class MyAppState extends State<MyApp> {
 
     bool _theme = prefs.getBool(_themeKey);
     bool _notesChanged = prefs.getBool(_notesChangedKey);
+
+    VissOptions _savedOptions = VissOptions(
+      theme: kLightVissTheme,
+      platform: defaultTargetPlatform,
+      updateNotes: false,
+    );
+    
     if (_theme != null) {
-      setState(() {
-        _options = _options.copyWith(
-            theme: _theme ? kDarkVissTheme : kLightVissTheme,
-            updateNotes: _notesChanged);
-      });
-    } else {
-      setState(() {
-        _options = VissOptions(
-          theme: kLightVissTheme,
-          platform: defaultTargetPlatform,
-          updateNotes: _notesChanged,
-        );
-      });
+      _savedOptions = _savedOptions.copyWith(
+          theme: _theme ? kDarkVissTheme : kLightVissTheme);
     }
+    if (_notesChanged != null) {
+      _savedOptions = _savedOptions.copyWith(updateNotes: _notesChanged);
+    }
+
+    setState(() {
+      _options = _savedOptions;
+    });
   }
 
   void _setOptions(VissOptions options) async {
