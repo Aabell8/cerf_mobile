@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String GRAPHQL_URL = "https://viss-mobile.herokuapp.com/graphql";
+const String GRAPHQL_URL = "https://viss-server.herokuapp.com/graphql";
 // const String GRAPHQL_URL = "http://10.0.2.2:5000/graphql";
 const String storageCookieKey = "graphql_cookie";
 

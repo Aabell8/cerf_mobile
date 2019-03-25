@@ -15,6 +15,12 @@ class LoginContent extends StatefulWidget {
 class _LoginContentState extends State<LoginContent> {
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
 
+  Map<String, dynamic> credentials = {
+    "name": "",
+    "email": "",
+    "password": "",
+  };
+
   bool _validateAndSave() {
     final form = _loginFormKey.currentState;
     if (form.validate()) {
@@ -30,7 +36,8 @@ class _LoginContentState extends State<LoginContent> {
         var auth = AuthProvider.of(context).auth;
 
         Map<String, String> response = await auth.loginWithEmailAndPassword(
-            "Austin6@gmail.com", "Testing123");
+            credentials["email"], credentials["password"]);
+        // "Austin6@gmail.com", "Testing123");
 
         if (response['error'] != null) {
           widget.onSnackBarMessage("Error in signing in: ${response['error']}");
@@ -77,7 +84,9 @@ class _LoginContentState extends State<LoginContent> {
                   border: OutlineInputBorder(),
                   labelText: 'Email',
                 ),
-                onSaved: (String value) {},
+                onSaved: (String value) {
+                  credentials["email"] = value;
+                },
                 // validator: _validateAddress,
                 maxLines: 1,
               ),
@@ -92,7 +101,9 @@ class _LoginContentState extends State<LoginContent> {
                   border: OutlineInputBorder(),
                   labelText: 'Password',
                 ),
-                onSaved: (String value) {},
+                onSaved: (String value) {
+                  credentials["password"] = value;
+                },
                 // validator: _validateAddress,
                 maxLines: 1,
               ),

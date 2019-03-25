@@ -10,8 +10,8 @@ import 'package:cerf_mobile/model/User.dart';
 abstract class BaseAuth {
   Future<Map<String, String>> loginWithEmailAndPassword(
       String email, String password);
-  Future<Map<String, String>> createUserWithEmailAndPassword(
-      String email, String password);
+  Future<Map<String, String>> createUser(
+      String name, String email, String password);
   Future<Map<String, String>> currentUser();
   Future<void> logout();
   String cookie;
@@ -45,12 +45,14 @@ class Auth implements BaseAuth {
     return {"user": user?.id};
   }
 
-  Future<Map<String, String>> createUserWithEmailAndPassword(
-      String email, String password) async {
+  Future<Map<String, String>> createUser(
+      String name, String email, String password) async {
     Map<String, dynamic> variables = {
+      'name': name,
       'email': email,
       'password': password,
     };
+
     User user;
     try {
       final http.Response response =
