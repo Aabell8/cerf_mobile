@@ -1,3 +1,3 @@
 class Secret {
-  static const gMapsAPI = "AIzaSyCQNHlTWAlEVtp1NebCmgO19T5fe0x4K_g";
+  static const gMapsAPI = "AIzaSyBhWX2y6UGb_d2ylBrJtU6a3Fj5EO_djJ8";
 }

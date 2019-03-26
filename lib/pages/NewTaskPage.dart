@@ -95,15 +95,19 @@ class _NewTaskPageState extends State<NewTaskPage> {
     } else {
       form.save();
       if (!task.isAllDay) {
-        task.windowStart = DateTime(
-            now.year, now.month, now.day, startTime?.hour, startTime?.minute).toUtc();
+        task.windowStart = DateTime(now.year, now.month, now.day,
+                startTime?.hour, startTime?.minute)
+            .toUtc();
         task.windowEnd = DateTime(
-            now.year, now.month, now.day, endTime?.hour, endTime?.minute).toUtc();
+                now.year, now.month, now.day, endTime?.hour, endTime?.minute)
+            .toUtc();
       } else {
         task.windowStart =
-            DateTime(now.year, now.month, now.day, now.hour, now.minute).toUtc();
+            DateTime(now.year, now.month, now.day, now.hour, now.minute)
+                .toUtc();
         task.windowEnd =
-            DateTime(now.year, now.month, now.day, now.hour, now.minute).toUtc();
+            DateTime(now.year, now.month, now.day, now.hour, now.minute)
+                .toUtc();
       }
       final uri = Uri(
         scheme: "https",
@@ -181,6 +185,10 @@ class _NewTaskPageState extends State<NewTaskPage> {
             _submitting = false;
           });
         }
+      }).catchError((err) {
+        setState(() {
+          _submitting = false;
+        });
       });
     }
   }

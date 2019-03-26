@@ -37,6 +37,7 @@ class _SchedulePageState extends State<SchedulePage> {
   TextEditingController _dialogController;
   ScrollController _scrollController;
 
+  bool _reordered;
   Map<String, double> _currentLocation;
   StreamSubscription<Map<String, double>> _locationSubscription;
   Location _location = Location();
@@ -45,6 +46,7 @@ class _SchedulePageState extends State<SchedulePage> {
     super.initState();
     _isStarted = false;
     _isLoading = true;
+    _reordered = false;
     _dialogController = TextEditingController();
     _scrollController = ScrollController();
     updateTasks();
@@ -185,6 +187,7 @@ class _SchedulePageState extends State<SchedulePage> {
       }
       final Task item = tasks.removeAt(oldIndex);
       tasks.insert(newIndex, item);
+      _reordered = true;
     });
   }
 
@@ -197,6 +200,11 @@ class _SchedulePageState extends State<SchedulePage> {
     }
     animateToCurrentTask(true);
 
+    if (_reordered) {
+      // Update task order in database
+      updateTaskOrder(tasks);
+    }
+    
     // ? Send started status to server
     setState(() {
       _locationSubscription =

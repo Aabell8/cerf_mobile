@@ -74,3 +74,24 @@ Future<Task> updateTaskStatus(Task task) async {
     return null;
   }
 }
+
+Future<bool> updateTaskOrder(List<Task> tasks) async {
+  String cookie = await getMobileCookie();
+
+  List<String> ids = tasks.map((task) => task.id).toList();
+
+  Map<String, dynamic> requestMap = {"ids": ids};
+
+  final http.Response response =
+      await runQuery(mutations.updateTaskOrder, cookie, variables: requestMap);
+
+  Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];
+  if (jsonResponse.containsKey("errors") || jsonResponse.containsKey("error")) {
+    throw Exception("Error with graphQL query::: ${jsonResponse['errors']}");
+  }
+
+  if (jsonResponse['updateTaskOrder'].toString() == "true") {
+    return true;
+  }
+  return false;
+}
