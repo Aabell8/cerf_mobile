@@ -31,7 +31,7 @@ class Auth implements BaseAuth {
     try {
       final http.Response response =
           await runQuery(mutations.login, "", variables: variables);
-      final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
+      final Map<String, dynamic> parsedRes = _parseGQLAuthResponse(response);
 
       if (parsedRes['error'] != null) {
         return {'error': parsedRes['error']};
@@ -57,7 +57,7 @@ class Auth implements BaseAuth {
     try {
       final http.Response response =
           await runQuery(mutations.signUp, cookie, variables: variables);
-      final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
+      final Map<String, dynamic> parsedRes = _parseGQLAuthResponse(response);
 
       if (parsedRes['error'] != null) {
         return {'error': parsedRes['error']};
@@ -80,7 +80,7 @@ class Auth implements BaseAuth {
     try {
       final http.Response response =
           await runQuery(queries.currentUser, cookie);
-      final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
+      final Map<String, dynamic> parsedRes = _parseGQLAuthResponse(response);
 
       if (parsedRes['error'] != null) {
         return {'error': parsedRes['error']};
@@ -99,7 +99,7 @@ class Auth implements BaseAuth {
       if (response.statusCode != 200) {
         throw http.ClientException("error in logging out");
       }
-      final Map<String, dynamic> parsedRes = _parseGQLResponse(response);
+      final Map<String, dynamic> parsedRes = _parseGQLAuthResponse(response);
       if (parsedRes['logout'] == true) {
         // Successfully logged out from graphQL
       }
@@ -113,7 +113,7 @@ class Auth implements BaseAuth {
   }
 
   // Parse response from server
-  Map<String, dynamic> _parseGQLResponse(http.Response response) {
+  Map<String, dynamic> _parseGQLAuthResponse(http.Response response) {
     final int statusCode = response.statusCode;
     final String reasonPhrase = response.reasonPhrase;
 

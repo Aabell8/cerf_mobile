@@ -6,6 +6,7 @@ import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/pages/NewTaskPage.dart';
 import 'package:cerf_mobile/pages/SettingsPage.dart';
 import 'package:cerf_mobile/services/tasks.dart';
+import 'package:cerf_mobile/services/user.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -52,6 +53,15 @@ class _SchedulePageState extends State<SchedulePage> {
     updateTasks();
   }
 
+  Widget buildListTile(Task item) {
+    return TaskListItem(item, context, updateStatus);
+  }
+
+  Widget buildExpandedTile(Task item) {
+    return ExpandableTaskListItem(
+        item, context, _currentTask == item.id, updateStatus);
+  }
+
   Future<void> updateTasks() {
     setState(() {
       _isLoading = true;
@@ -59,6 +69,7 @@ class _SchedulePageState extends State<SchedulePage> {
     return fetchTasks().then<void>((res) {
       setState(() {
         tasks = res;
+        // Set isStarted to false here if problem
         _isLoading = false;
       });
     }).catchError((e) {
@@ -69,36 +80,6 @@ class _SchedulePageState extends State<SchedulePage> {
           "Error in refreshing data from server: \nError code: $e");
     });
   }
-
-  Future<void> initPlatformState() async {
-    Map<String, double> location;
-    try {
-      bool permission = await _location.hasPermission();
-      if (permission) {
-        // ? Error in starting on iOS, this function doesnt return
-        location = await _location.getLocation();
-      }
-    } on PlatformException catch (e) {
-      if (e.code == 'PERMISSION_DENIED') {
-        showSnackBarMessage(
-            'Permission denied for retrieving location, please enable it in settings');
-      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
-        // This logic statement doesn't seem to be reachable
-        print('Permission not asked for and not allowed yet');
-      }
-      location = null;
-    }
-
-    return;
-    // print(location);
-  }
-
-  // List<Task> filterTodo() {
-  //   tasksTodo = tasks
-  //       .where((task) => (task.status != "f" && task.status != "c"))
-  //       .toList();
-  //   return tasksTodo;
-  // }
 
   // Returns true if another valid task, false if no tasks to do
   bool getNextTask() {
@@ -171,15 +152,6 @@ class _SchedulePageState extends State<SchedulePage> {
     animateToCurrentTask(false);
   }
 
-  Widget buildListTile(Task item) {
-    return TaskListItem(item, context, updateStatus);
-  }
-
-  Widget buildExpandedTile(Task item) {
-    return ExpandableTaskListItem(
-        item, context, _currentTask == item.id, updateStatus);
-  }
-
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
       if (newIndex > oldIndex) {
@@ -191,9 +163,33 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
+  Future<void> initPlatformState() async {
+    Map<String, double> location;
+    try {
+      bool permission = await _location.hasPermission();
+      if (permission) {
+        // ? Error in starting on iOS, this function doesnt return
+        location = await _location.getLocation();
+      }
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        showSnackBarMessage(
+            'Permission denied for retrieving location, please enable it in settings');
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        // This logic statement doesn't seem to be reachable
+        print('Permission not asked for and not allowed yet');
+      }
+      location = null;
+    }
+
+    _currentLocation = location;
+
+    return;
+  }
+
   void onStarted() async {
     // Changed to be async but check for location in function
-    initPlatformState();
+    await initPlatformState();
     if (!getNextTask()) {
       showSnackBarMessage("No tasks remaining to be completed today");
       return;
@@ -204,13 +200,24 @@ class _SchedulePageState extends State<SchedulePage> {
       // Update task order in database
       updateTaskOrder(tasks);
     }
-    
+
+    Map<String, dynamic> variables = {"isStarted": true};
+
+    if (_currentLocation != null) {
+      variables["lat"] = _currentLocation["latitude"];
+      variables["lng"] = _currentLocation["longitude"];
+    }
+
+    await updateUser(variables);
+
     // ? Send started status to server
     setState(() {
       _locationSubscription =
           _location.onLocationChanged().listen((Map<String, double> result) {
         _currentLocation = result;
       });
+
+      // ? Create timer to send updated location to server every x seconds
       // Filter tasks
       // tasksTodo = filterTodo();
       // _currentTask = tasksTodo.isNotEmpty ? tasksTodo[0]?.id : "";
@@ -218,7 +225,8 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
-  void onPaused() {
+  void onPaused() async {
+    await updateUser({"isStarted": false});
     setState(() {
       _locationSubscription.cancel();
       _isStarted = false;

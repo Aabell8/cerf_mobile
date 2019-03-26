@@ -41,3 +41,30 @@ Future<bool> setMobileCookie(String token) async {
   final SharedPreferences prefs = await _prefs;
   return prefs.setString(storageCookieKey, token);
 }
+
+// Parse response from server
+Map<String, dynamic> parseGQLResponse(http.Response response) {
+  final int statusCode = response.statusCode;
+  final String reasonPhrase = response.reasonPhrase;
+
+  if (statusCode < 200 || statusCode >= 400) {
+    throw http.ClientException(
+      'Network Error: $statusCode $reasonPhrase',
+    );
+  }
+
+  final Map<String, dynamic> jsonResponse = json.decode(response.body);
+
+  if (jsonResponse['errors'] != null && jsonResponse['errors'].length > 0) {
+    var errorMessage = jsonResponse['errors'][0];
+    if (errorMessage['message'] != null) {
+      return {'error': errorMessage['message']};
+    } else {
+      throw Exception(
+        'Error returned by the GQL server: \n${jsonResponse['errors'][0]}',
+      );
+    }
+  }
+
+  return jsonResponse['data'];
+}
