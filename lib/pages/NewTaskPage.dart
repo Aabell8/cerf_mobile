@@ -25,7 +25,8 @@ class NewTaskPage extends StatefulWidget {
 }
 
 class _NewTaskPageState extends State<NewTaskPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  static final GlobalKey<ScaffoldState> _scaffoldKey =
+      GlobalKey<ScaffoldState>();
   bool _submitting = false;
 
   final _hourController = TextEditingController(text: '0');
@@ -48,7 +49,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
   }
 
   void showInSnackBar(String value) {
-    _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(value)));
+    _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(value)));
   }
 
   bool _autovalidate = false;
@@ -119,6 +120,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
           "location_type": "RANGE_INTERPOLATED|ROOFTOP"
         },
       );
+
       http.get(uri.toString()).then((res) {
         if (res.statusCode == 200) {
           Map<String, dynamic> jsonRes = json.decode(res.body);
@@ -163,6 +165,10 @@ class _NewTaskPageState extends State<NewTaskPage> {
                 setState(() {
                   _submitting = false;
                 });
+              }).catchError((err) {
+                setState(() {
+                  _submitting = false;
+                });
               });
             } else {
               showInSnackBar("No address found for ${task.address}");
@@ -186,6 +192,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
           });
         }
       }).catchError((err) {
+        showInSnackBar("Invalid request, error: $err");
         setState(() {
           _submitting = false;
         });

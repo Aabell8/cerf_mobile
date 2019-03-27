@@ -199,6 +199,7 @@ class _SchedulePageState extends State<SchedulePage> {
     if (_reordered) {
       // Update task order in database
       updateTaskOrder(tasks);
+      _reordered = false;
     }
 
     Map<String, dynamic> variables = {"isStarted": true};
@@ -210,7 +211,6 @@ class _SchedulePageState extends State<SchedulePage> {
 
     await updateUser(variables);
 
-    // ? Send started status to server
     setState(() {
       _locationSubscription =
           _location.onLocationChanged().listen((Map<String, double> result) {
@@ -233,8 +233,24 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
-  onOptimize() {
-    // ? Set up optimization of tasks
+  void onOptimize() {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+    optimizeTasks(tasks).then<void>((res) {
+      setState(() {
+        tasks = res;
+        _isLoading = false;
+      });
+    }).catchError((e) {
+      setState(() {
+        _isLoading = false;
+      });
+      showSnackBarMessage("Error in optimizing tasks - \nError code: $e");
+    });
+
     return;
   }
 

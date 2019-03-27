@@ -82,3 +82,25 @@ Future<bool> updateTaskOrder(List<Task> tasks) async {
   }
   return false;
 }
+
+Future<List<Task>> optimizeTasks(List<Task> tasks) async {
+  String cookie = await getMobileCookie();
+
+  List<String> ids = tasks.map((task) => task.id).toList();
+
+  Map<String, dynamic> variables = {
+    'ids': ids,
+  };
+
+  final http.Response response =
+      await runQuery(queries.optimizeTasks, cookie, variables: variables);
+  Map<String, dynamic> jsonResponse = parseGQLResponse(response);
+
+  var list = jsonResponse['optimizedTasks'] as List;
+
+  if (list != null) {
+    return list.map((t) => Task.fromJson(t)).toList();
+  } else {
+    return [];
+  }
+}
