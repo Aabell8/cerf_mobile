@@ -242,6 +242,7 @@ class _SchedulePageState extends State<SchedulePage> {
     optimizeTasks(tasks).then<void>((res) {
       setState(() {
         tasks = res;
+        _reordered = true;
         _isLoading = false;
       });
     }).catchError((e) {
