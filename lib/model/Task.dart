@@ -54,7 +54,7 @@ class Task {
     notes,
     isAllDay,
     email,
-    phone
+    phone,
   }) {
     return Task(
       id: id ?? this.id,
@@ -129,14 +129,51 @@ class Task {
     return TimeOfDay(hour: parsed.hour, minute: parsed.minute);
   }
 
-  static String timeOfDayFormat(
-      DateTime timeStart, DateTime timeEnd, bool isAllDay) {
+  String addressFormat() {
+    return "$address, $city, $province";
+  }
+
+  String timeOfDayFormat() {
     if (isAllDay) {
       return "today";
-    } else if (timeStart == null || timeEnd == null) {
+    } else if (windowStart == null || windowEnd == null) {
       return "";
     } else {
-      return '${DateFormat.jm().format(timeStart)}-${DateFormat.jm().format(timeEnd)}';
+      return '${DateFormat.jm().format(windowStart)} - ${DateFormat.jm().format(windowEnd)}';
+    }
+  }
+
+  String taskDateFormat() {
+    int hours = duration ~/ 60;
+    int minutes = duration % 60;
+    String durationString = "";
+    if (hours > 0) {
+      durationString += " $hours hour";
+      if (hours > 1) {
+        durationString += "s";
+      }
+    }
+    if (minutes > 0) {
+      durationString += " $minutes minutes";
+    }
+    if (minutes == 0 && hours == 0) {
+      durationString = "0 minutes";
+    }
+    return "${DateFormat("yMMMEd").format(windowStart)} -$durationString";
+  }
+
+  String statusFormat() {
+    switch (status) {
+      case "f":
+        return "Finished";
+      case "c":
+        return "Cancelled";
+      case "o":
+        return "Ongoing";
+      case "s":
+        return "Started";
+      default:
+        return "Not Completed";
     }
   }
 }

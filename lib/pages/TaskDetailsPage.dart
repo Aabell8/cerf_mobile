@@ -5,7 +5,6 @@ import 'package:cerf_mobile/constants/secret.dart';
 import 'package:cerf_mobile/model/Task.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TaskDetailsPage extends StatefulWidget {
@@ -52,6 +51,8 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
     Task task = widget.task;
     final ThemeData theme = Theme.of(context);
     final bool isDark = theme.brightness == Brightness.dark;
+    final bool hasEmail = task.email != null && task.email.isNotEmpty;
+    final bool hasPhone = task.phone != null && task.phone.isNotEmpty;
 
     return Scaffold(
       key: _scaffoldKey,
@@ -99,49 +100,80 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
           ),
           SliverList(
             delegate: SliverChildListDelegate(<Widget>[
-              AnnotatedRegion<SystemUiOverlayStyle>(
-                value: SystemUiOverlayStyle.dark,
-                child: DetailsCategory(
-                  icon: Icons.location_on,
-                  children: <Widget>[
-                    DetailsItem(
-                      icon: Icons.directions,
-                      tooltip: 'Get Directions',
-                      onPressed: () async {
-                        Uri launchUri = Uri(
-                            scheme: "https",
-                            host: "www.google.com",
-                            path: "/maps/search/",
-                            queryParameters: {
-                              "api": "1",
-                              "query":
-                                  "${task.address}, ${task.city}, ${task.province}"
-                            });
-                        String url = launchUri.toString();
+              DetailsCategory(
+                children: <Widget>[
+                  DetailsItem(
+                    leftIcon: Icons.location_on,
+                    icon: Icons.directions,
+                    tooltip: 'Get Directions',
+                    onPressed: () async {
+                      Uri launchUri = Uri(
+                          scheme: "https",
+                          host: "www.google.com",
+                          path: "/maps/search/",
+                          queryParameters: {
+                            "api": "1",
+                            "query":
+                                "${task.address}, ${task.city}, ${task.province}"
+                          });
+                      String url = launchUri.toString();
 
-                        if (await canLaunch(url)) {
-                          await launch(url);
-                        } else {
-                          throw 'Could not launch $url';
-                        }
-                      },
-                      lines: <String>[
-                        widget.task.address,
-                        'Address',
-                      ],
-                    ),
-                    DetailsItem(
-                      tooltip: 'Get Directions',
-                      lines: <String>[
-                        "${task.duration} minutes: ${DateFormat("MMMEd").format(task.windowStart)}",
-                        "${Task.timeOfDayFormat(task.windowStart, task.windowEnd, task.isAllDay)}",
-                        'Estimated time: ',
-                      ],
-                    ),
-                  ],
-                ),
+                      if (await canLaunch(url)) {
+                        await launch(url);
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    },
+                    lines: <String>[
+                      task.addressFormat(),
+                      'Address',
+                    ],
+                  ),
+                ],
               ),
-              widget.task.notes != ""
+              DetailsCategory(
+                children: <Widget>[
+                  DetailsItem(
+                    leftIcon: Icons.calendar_today,
+                    lines: <String>[
+                      task.taskDateFormat(),
+                      task.timeOfDayFormat(),
+                      'Estimated time: ',
+                    ],
+                  ),
+                  DetailsItem(
+                    lines: <String>[
+                      task.statusFormat(),
+                      'Status',
+                    ],
+                  ),
+                ],
+              ),
+              hasPhone || hasEmail
+                  ? DetailsCategory(
+                      children: <Widget>[
+                        hasEmail
+                            ? DetailsItem(
+                                leftIcon: Icons.email,
+                                lines: <String>[
+                                  task.email,
+                                  'Email',
+                                ],
+                              )
+                            : Container(),
+                        hasPhone
+                            ? DetailsItem(
+                                leftIcon: Icons.phone,
+                                lines: <String>[
+                                  task.phone,
+                                  'Phone Number',
+                                ],
+                              )
+                            : Container(),
+                      ],
+                    )
+                  : Container(),
+              task.notes != ""
                   ? Container(
                       decoration: BoxDecoration(
                           border: Border(
@@ -149,11 +181,11 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                                   color: Theme.of(context).dividerColor))),
                       child: Padding(
                         padding: EdgeInsets.all(24.0),
-                        child: Text(widget.task.notes,
+                        child: Text(task.notes,
                             style: Theme.of(context).textTheme.caption),
                       ),
                     )
-                  : Container(width: 0.0, height: 0.0),
+                  : Container(),
               Container(
                 decoration: BoxDecoration(
                     border: Border(
@@ -170,7 +202,10 @@ class TaskDetailsPageState extends State<TaskDetailsPage> {
                           DetailsButton(
                             text: "Email",
                             icon: Icons.email,
-                            onPressed: () {},
+                            onPressed:
+                                task.email != null && task.email.isNotEmpty
+                                    ? () {}
+                                    : null,
                           ),
                           DetailsButton(
                             text: "Copy Link",

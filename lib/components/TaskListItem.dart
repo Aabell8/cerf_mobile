@@ -39,7 +39,7 @@ class TaskListItem extends Container {
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(
-                  '${item.duration} minutes ${Task.timeOfDayFormat(item.windowStart, item.windowEnd, item.isAllDay)}',
+                  '${item.duration} minutes ${item.timeOfDayFormat()}',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -115,7 +115,7 @@ class ExpandableTaskListItem extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Text(
-                    '${task.duration} minutes ${Task.timeOfDayFormat(task.windowStart, task.windowEnd, task.isAllDay)}',
+                    '${task.duration} minutes ${task.timeOfDayFormat()}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

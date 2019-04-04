@@ -1,4 +1,4 @@
-import 'package:cerf_mobile/main.dart';
+// import 'package:cerf_mobile/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cerf_mobile/services/auth.dart';
 
