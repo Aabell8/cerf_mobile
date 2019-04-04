@@ -15,6 +15,8 @@ String currentUserTasks = """
       duration
       isAllDay
       notes
+      email
+      phone
     }
   }
 """
@@ -37,6 +39,8 @@ String optimizeTasks = """
       duration
       isAllDay
       notes
+      email
+      phone
     }
   }
 """

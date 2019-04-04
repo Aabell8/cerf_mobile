@@ -165,15 +165,25 @@ class ExpandableTaskListItem extends StatelessWidget {
                               }
                             },
                           ),
-                          DetailsButton(
-                            text: "Complete",
-                            icon: Icons.check,
-                            condensed: true,
-                            onPressed: () {
-                              task.status = "f";
-                              updateStatus(task);
-                            },
-                          ),
+                          task.status == "s"
+                              ? DetailsButton(
+                                  text: "Complete",
+                                  icon: Icons.check,
+                                  condensed: true,
+                                  onPressed: () {
+                                    task.status = "f";
+                                    updateStatus(task);
+                                  },
+                                )
+                              : DetailsButton(
+                                  text: "Start",
+                                  icon: Icons.play_arrow,
+                                  condensed: true,
+                                  onPressed: () {
+                                    task.status = "s";
+                                    updateStatus(task);
+                                  },
+                                ),
                         ],
                       )
                     : Container(),

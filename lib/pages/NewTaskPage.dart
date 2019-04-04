@@ -74,6 +74,18 @@ class _NewTaskPageState extends State<NewTaskPage> {
     return null;
   }
 
+  String _validateEmail(String value) {
+    value = value.trim();
+    String p =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+
+    RegExp regExp = new RegExp(p);
+
+    if (value.isEmpty) return null; // Email can be empty
+    if (!regExp.hasMatch(value)) return "Not a valid email"; // If provided
+    return null;
+  }
+
   // String _validateProvince(String value) {
   //   value = value.trim();
   //   if (value.isEmpty) return 'Required.';
@@ -94,6 +106,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
         _submitting = false;
       });
     } else {
+      task.duration = 0;
       form.save();
       if (!task.isAllDay) {
         task.windowStart = DateTime(now.year, now.month, now.day,
@@ -160,6 +173,8 @@ class _NewTaskPageState extends State<NewTaskPage> {
                   task.lng = location["lng"];
                   createTask(task).then((res) {
                     Navigator.of(context).pop(res);
+                  }).catchError((err) {
+                    showInSnackBar("error in creating task: $err");
                   });
                 }
                 setState(() {
@@ -232,10 +247,22 @@ class _NewTaskPageState extends State<NewTaskPage> {
               children: <Widget>[
                 SizedBox(height: 24.0),
                 TextFormField(
+                  key: Key('name'),
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Name',
+                  ),
+                  onSaved: (String value) {
+                    task.name = value.trim();
+                  },
+                  maxLines: 1,
+                ),
+                SizedBox(height: 24.0),
+                TextFormField(
                   key: Key('address'),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Address',
+                    labelText: 'Address *',
                   ),
                   onSaved: (String value) {
                     task.address = value.trim();
@@ -251,7 +278,7 @@ class _NewTaskPageState extends State<NewTaskPage> {
                         key: Key('city'),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
-                          labelText: 'City',
+                          labelText: 'City *',
                         ),
                         onSaved: (String value) {
                           task.city = formatCity(value.trim());
@@ -429,6 +456,34 @@ class _NewTaskPageState extends State<NewTaskPage> {
                     task.notes = value;
                   },
                   maxLines: 3,
+                ),
+                SizedBox(height: 24.0),
+                TextFormField(
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Email',
+                  ),
+                  onSaved: (String value) {
+                    task.email = value.trim();
+                  },
+                  maxLines: 1,
+                  validator: _validateEmail,
+                ),
+                SizedBox(height: 24.0),
+                TextFormField(
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Phone',
+                  ),
+                  onSaved: (String value) {
+                    task.phone = value.trim();
+                  },
+                  maxLines: 1,
+                  // ? Add phone validation
                 ),
                 SizedBox(height: 24.0),
                 Row(

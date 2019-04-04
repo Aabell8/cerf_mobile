@@ -21,7 +21,7 @@ class _LoginContentState extends State<LoginContent> {
     "password": "",
   };
 
-    String _validateEmail(String value) {
+  String _validateEmail(String value) {
     value = value.trim();
     String p =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
@@ -33,7 +33,7 @@ class _LoginContentState extends State<LoginContent> {
     return null;
   }
 
-    String _validatePassword(String value) {
+  String _validatePassword(String value) {
     value = value.trim();
     if (value.isEmpty) return 'Password is required.';
     return null;
@@ -103,7 +103,7 @@ class _LoginContentState extends State<LoginContent> {
                   labelText: 'Email',
                 ),
                 onSaved: (String value) {
-                  credentials["email"] = value;
+                  credentials["email"] = value.trim();
                 },
                 validator: _validateEmail,
                 maxLines: 1,
@@ -120,7 +120,7 @@ class _LoginContentState extends State<LoginContent> {
                   labelText: 'Password',
                 ),
                 onSaved: (String value) {
-                  credentials["password"] = value;
+                  credentials["password"] = value.trim();
                 },
                 validator: _validatePassword,
                 maxLines: 1,

@@ -209,7 +209,12 @@ class _SchedulePageState extends State<SchedulePage> {
       variables["lng"] = _currentLocation["longitude"];
     }
 
-    await updateUser(variables);
+    try {
+      await updateUser(variables);
+    } catch (err) {
+      showSnackBarMessage("Error in starting, code: $err");
+      return;
+    }
 
     setState(() {
       _locationSubscription =
@@ -226,7 +231,11 @@ class _SchedulePageState extends State<SchedulePage> {
   }
 
   void onPaused() async {
-    await updateUser({"isStarted": false});
+    try {
+      await updateUser({"isStarted": false});
+    } catch (err) {
+      showSnackBarMessage("Status failed to update, code: $err");
+    }
     setState(() {
       _locationSubscription.cancel();
       _isStarted = false;

@@ -16,6 +16,8 @@ class Task {
   double lng;
   String notes;
   String status;
+  String email;
+  String phone;
 
   Task({
     this.id,
@@ -31,6 +33,8 @@ class Task {
     this.lng,
     this.status,
     this.notes,
+    this.email,
+    this.phone,
     this.isAllDay: false,
   });
 
@@ -49,6 +53,8 @@ class Task {
     status,
     notes,
     isAllDay,
+    email,
+    phone
   }) {
     return Task(
       id: id ?? this.id,
@@ -64,6 +70,8 @@ class Task {
       lng: lng ?? this.lng,
       status: status ?? this.status,
       notes: notes ?? this.notes,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
       isAllDay: isAllDay ?? this.isAllDay,
     );
   }
@@ -91,6 +99,8 @@ class Task {
       lng: json['lng'] as double,
       status: json['status'] as String,
       notes: json['notes'] as String,
+      email: json['email'] as String,
+      phone: json['phone'] as String,
       isAllDay: json['isAllDay'] as bool,
     );
   }
@@ -109,6 +119,8 @@ class Task {
         'lng': lng,
         'status': status,
         'notes': notes,
+        'email': email,
+        'phone': phone,
         'isAllDay': isAllDay,
       };
 
