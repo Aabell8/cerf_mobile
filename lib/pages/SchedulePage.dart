@@ -73,6 +73,7 @@ class _SchedulePageState extends State<SchedulePage> {
         _isLoading = false;
       });
     }).catchError((e) {
+      // ? Check if error is not logged in on server, log out on mobile
       setState(() {
         _isLoading = false;
       });
@@ -84,7 +85,8 @@ class _SchedulePageState extends State<SchedulePage> {
   // Returns true if another valid task, false if no tasks to do
   bool getNextTask() {
     List<Task> todo = tasks
-        .where((task) => (task.status != "f" && task.status != "c"))
+        .where((task) =>
+            (task.status != "f" && task.status != "c" && task.status != "o"))
         .toList();
     if (todo.isNotEmpty) {
       setState(() {
@@ -118,21 +120,30 @@ class _SchedulePageState extends State<SchedulePage> {
 
   void updateStatus(Task task) async {
     // If update notes on task status changed
-    if (task.status != "a" && widget.options.updateNotes) {
+    if ((task.status == "f" || task.status == "c") &&
+        widget.options.updateNotes) {
       _dialogController.text = task.notes;
       await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
               title: Text("Update Notes"),
               content: TextField(
-                decoration: new InputDecoration(
+                decoration: InputDecoration(
                   hintText: "Enter updated notes for task",
                   border: OutlineInputBorder(),
                 ),
                 controller: _dialogController,
-                maxLines: 8,
+                maxLines: 12,
               ),
               actions: <Widget>[
+                FlatButton(
+                    child: Text('ONGOING'),
+                    onPressed: () {
+                      task.notes = _dialogController.text;
+                      task.status = "o";
+                      Navigator.of(context).pop();
+                    }),
                 FlatButton(
                     child: Text('SAVE'),
                     onPressed: () {
@@ -140,8 +151,8 @@ class _SchedulePageState extends State<SchedulePage> {
                       Navigator.of(context).pop();
                     }),
               ],
-            ),
-      );
+            );
+          });
     }
 
     // Update status on server

@@ -60,9 +60,7 @@ Map<String, dynamic> parseGQLResponse(http.Response response) {
     if (errorMessage['message'] != null) {
       return {'error': errorMessage['message']};
     } else {
-      throw Exception(
-        'Error returned by the GQL server: \n${jsonResponse['errors'][0]}',
-      );
+      return {'error': errorMessage};
     }
   }
 

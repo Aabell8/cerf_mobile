@@ -18,6 +18,10 @@ Future<List<Task>> fetchTasks() async {
       await runQuery(queries.currentUserTasks, cookie, variables: variables);
   Map<String, dynamic> jsonResponse = parseGQLResponse(response);
 
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
+  }
+
   var list = jsonResponse['myTasks'] as List;
 
   if (list != null) {
@@ -37,6 +41,10 @@ Future<Task> createTask(Task task) async {
 
   Map<String, dynamic> jsonResponse = parseGQLResponse(response);
 
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
+  }
+
   jsonResponse = jsonResponse['createTask'];
 
   if (jsonResponse != null) {
@@ -55,6 +63,10 @@ Future<Task> updateTaskStatus(Task task) async {
       await runQuery(mutations.updateTaskStatus, cookie, variables: taskMap);
 
   Map<String, dynamic> jsonResponse = parseGQLResponse(response);
+
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
+  }
 
   jsonResponse = jsonResponse['updateTask'];
 
@@ -77,6 +89,10 @@ Future<bool> updateTaskOrder(List<Task> tasks) async {
 
   Map<String, dynamic> jsonResponse = parseGQLResponse(response);
 
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
+  }
+
   if (jsonResponse['updateTaskOrder'].toString() == "true") {
     return true;
   }
@@ -95,6 +111,10 @@ Future<List<Task>> optimizeTasks(List<Task> tasks) async {
   final http.Response response =
       await runQuery(queries.optimizeTasks, cookie, variables: variables);
   Map<String, dynamic> jsonResponse = parseGQLResponse(response);
+
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
+  }
 
   var list = jsonResponse['optimizedTasks'] as List;
 

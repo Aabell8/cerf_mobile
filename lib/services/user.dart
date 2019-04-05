@@ -11,6 +11,10 @@ Future<User> updateUser(Map<String, dynamic> variables) async {
       await runQuery(mutations.updateUser, cookie, variables: variables);
   Map<String, dynamic> jsonResponse = parseGQLResponse(response);
 
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
+  }
+
   User user;
   try {
     user = User.fromJson(jsonResponse['updateUser']);

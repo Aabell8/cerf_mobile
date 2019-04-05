@@ -5,7 +5,7 @@ import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/model/Task.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Color getColor(String status) {
+Color _getColor(String status) {
   // Finished status code
   if (status == "f") {
     return AppColors.greenBlue.withAlpha(50);
@@ -15,7 +15,75 @@ Color getColor(String status) {
   else if (status == "c") {
     return Colors.orangeAccent.withAlpha(50);
   }
+
+  // Ongoing status code
+  else if (status == "o") {
+    return AppColors.blueAccent.withAlpha(20);
+  }
+
+  // Started status code
+  else if (status == "s") {
+    return AppColors.blueAccent.withAlpha(20);
+  }
+
   return null;
+}
+
+Widget _getAvatar(String status, BuildContext context) {
+  final bool isDark = Theme.of(context).brightness == Brightness.dark;
+  // Finished status code
+  if (status == "f") {
+    return ExcludeSemantics(
+      child: CircleAvatar(
+        child:
+            Icon(Icons.done, color: isDark ? Colors.grey[800] : Colors.white),
+        backgroundColor: AppColors.greenBlue,
+      ),
+    );
+  }
+
+  // Cancelled status code
+  else if (status == "c") {
+    return ExcludeSemantics(
+      child: CircleAvatar(
+        child:
+            Icon(Icons.close, color: isDark ? Colors.grey[800] : Colors.white),
+        backgroundColor: Colors.orangeAccent,
+      ),
+    );
+  }
+
+  // Ongoing status code
+  else if (status == "o") {
+    return ExcludeSemantics(
+      child: CircleAvatar(
+        child: Icon(Icons.assignment_return,
+            color: isDark ? Colors.grey[800] : Colors.white),
+        backgroundColor: AppColors.blueAccent,
+      ),
+    );
+  }
+
+  // Started status code
+  else if (status == "s") {
+    return ExcludeSemantics(
+      child: CircleAvatar(
+        child: Icon(Icons.play_arrow,
+            color: isDark ? Colors.grey[800] : Colors.white),
+        backgroundColor: AppColors.blueAccent,
+      ),
+    );
+    
+  }
+
+  return ExcludeSemantics(
+    child: CircleAvatar(
+      child: Icon(Icons.assignment,
+          color: isDark ? Colors.grey[800] : Colors.white),
+      backgroundColor: AppColors.blueAccent,
+    ),
+  );
+  ;
 }
 
 class TaskListItem extends Container {
@@ -28,10 +96,11 @@ class TaskListItem extends Container {
               child: ListTile(
                 dense: true,
                 isThreeLine: true,
-                leading: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
-                  child: Icon(Icons.drag_handle),
-                ),
+                // leading: Padding(
+                //   padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
+                //   child: Icon(Icons.drag_handle),
+                // ),
+                leading: _getAvatar(item.status, context),
                 title: Text(
                   item.name != null && item.name != ''
                       ? '${item.name} - ${item.address}'
@@ -39,7 +108,8 @@ class TaskListItem extends Container {
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(
-                  '${item.duration} minutes ${item.timeOfDayFormat()}',
+                  '${item.duration} minutes ${item.timeOfDayFormat()}\n'
+                  '${item.statusFormat()}',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -80,7 +150,7 @@ class TaskListItem extends Container {
                   );
                 },
               ),
-              color: getColor(item.status),
+              // color: _getColor(item.status),
             ),
           ),
         );
@@ -190,7 +260,7 @@ class ExpandableTaskListItem extends StatelessWidget {
                 SizedBox(height: 16.0)
               ],
             ),
-            color: getColor(task.status),
+            color: _getColor(task.status),
           ),
         ),
       ),
