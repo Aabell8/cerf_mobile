@@ -16,6 +16,8 @@ class Task {
   double lng;
   String notes;
   String status;
+  String email;
+  String phone;
 
   Task({
     this.id,
@@ -31,6 +33,8 @@ class Task {
     this.lng,
     this.status,
     this.notes,
+    this.email,
+    this.phone,
     this.isAllDay: false,
   });
 
@@ -49,6 +53,8 @@ class Task {
     status,
     notes,
     isAllDay,
+    email,
+    phone,
   }) {
     return Task(
       id: id ?? this.id,
@@ -64,6 +70,8 @@ class Task {
       lng: lng ?? this.lng,
       status: status ?? this.status,
       notes: notes ?? this.notes,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
       isAllDay: isAllDay ?? this.isAllDay,
     );
   }
@@ -91,6 +99,8 @@ class Task {
       lng: json['lng'] as double,
       status: json['status'] as String,
       notes: json['notes'] as String,
+      email: json['email'] as String,
+      phone: json['phone'] as String,
       isAllDay: json['isAllDay'] as bool,
     );
   }
@@ -109,6 +119,8 @@ class Task {
         'lng': lng,
         'status': status,
         'notes': notes,
+        'email': email,
+        'phone': phone,
         'isAllDay': isAllDay,
       };
 
@@ -117,14 +129,51 @@ class Task {
     return TimeOfDay(hour: parsed.hour, minute: parsed.minute);
   }
 
-  static String timeOfDayFormat(
-      DateTime timeStart, DateTime timeEnd, bool isAllDay) {
+  String addressFormat() {
+    return "$address, $city, $province";
+  }
+
+  String timeOfDayFormat() {
     if (isAllDay) {
       return "today";
-    } else if (timeStart == null || timeEnd == null) {
+    } else if (windowStart == null || windowEnd == null) {
       return "";
     } else {
-      return '${DateFormat.jm().format(timeStart)}-${DateFormat.jm().format(timeEnd)}';
+      return '${DateFormat.jm().format(windowStart)} - ${DateFormat.jm().format(windowEnd)}';
+    }
+  }
+
+  String taskDateFormat() {
+    int hours = duration ~/ 60;
+    int minutes = duration % 60;
+    String durationString = "";
+    if (hours > 0) {
+      durationString += " $hours hour";
+      if (hours > 1) {
+        durationString += "s";
+      }
+    }
+    if (minutes > 0) {
+      durationString += " $minutes minutes";
+    }
+    if (minutes == 0 && hours == 0) {
+      durationString = "0 minutes";
+    }
+    return "${DateFormat("yMMMEd").format(windowStart)} -$durationString";
+  }
+
+  String statusFormat() {
+    switch (status) {
+      case "f":
+        return "Finished";
+      case "c":
+        return "Cancelled";
+      case "o":
+        return "Ongoing";
+      case "s":
+        return "Started";
+      default:
+        return "Not Completed";
     }
   }
 }

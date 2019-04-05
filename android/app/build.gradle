@@ -13,12 +13,12 @@ if (flutterRoot == null) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
+    flutterVersionCode = '2'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
+    flutterVersionName = '1.0.1'
 }
 
 apply plugin: 'com.android.application'
@@ -46,8 +46,8 @@ android {
         applicationId "business.viss.vissmobile"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.0-demo"
+        versionCode 3
+        versionName "1.0.2-demo"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
@@ -65,7 +65,7 @@ android {
             signingConfig signingConfigs.release
 
             // Change both to true
-            minifyEnabled false
+            minifyEnabled true
             useProguard false
 
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

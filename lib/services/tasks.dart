@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:cerf_mobile/model/Task.dart';
 import 'package:cerf_mobile/services/graphql.dart';
 import './queries/task_queries.dart' as queries;
@@ -17,11 +16,12 @@ Future<List<Task>> fetchTasks() async {
 
   final http.Response response =
       await runQuery(queries.currentUserTasks, cookie, variables: variables);
-  Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];
+  Map<String, dynamic> jsonResponse = parseGQLResponse(response);
 
-  if (jsonResponse['errors'] != null || jsonResponse['error'] != null) {
-    throw Exception("error with graphQL query");
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
   }
+
   var list = jsonResponse['myTasks'] as List;
 
   if (list != null) {
@@ -39,9 +39,10 @@ Future<Task> createTask(Task task) async {
   final http.Response response =
       await runQuery(mutations.createTask, cookie, variables: taskMap);
 
-  Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];
-  if (jsonResponse['errors'] != null || jsonResponse['error'] != null) {
-    throw Exception("Error with graphQL query::: ${jsonResponse['errors']}");
+  Map<String, dynamic> jsonResponse = parseGQLResponse(response);
+
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
   }
 
   jsonResponse = jsonResponse['createTask'];
@@ -61,9 +62,10 @@ Future<Task> updateTaskStatus(Task task) async {
   final http.Response response =
       await runQuery(mutations.updateTaskStatus, cookie, variables: taskMap);
 
-  Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];
-  if (jsonResponse['errors'] != null || jsonResponse['error'] != null) {
-    throw Exception("Error with graphQL query::: ${jsonResponse['errors']}");
+  Map<String, dynamic> jsonResponse = parseGQLResponse(response);
+
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
   }
 
   jsonResponse = jsonResponse['updateTask'];
@@ -85,13 +87,40 @@ Future<bool> updateTaskOrder(List<Task> tasks) async {
   final http.Response response =
       await runQuery(mutations.updateTaskOrder, cookie, variables: requestMap);
 
-  Map<String, dynamic> jsonResponse = json.decode(response.body)['data'];
-  if (jsonResponse.containsKey("errors") || jsonResponse.containsKey("error")) {
-    throw Exception("Error with graphQL query::: ${jsonResponse['errors']}");
+  Map<String, dynamic> jsonResponse = parseGQLResponse(response);
+
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
   }
 
   if (jsonResponse['updateTaskOrder'].toString() == "true") {
     return true;
   }
   return false;
+}
+
+Future<List<Task>> optimizeTasks(List<Task> tasks) async {
+  String cookie = await getMobileCookie();
+
+  List<String> ids = tasks.map((task) => task.id).toList();
+
+  Map<String, dynamic> variables = {
+    'ids': ids,
+  };
+
+  final http.Response response =
+      await runQuery(queries.optimizeTasks, cookie, variables: variables);
+  Map<String, dynamic> jsonResponse = parseGQLResponse(response);
+
+  if (jsonResponse['error'] != null) {
+    throw Exception(jsonResponse['error']);
+  }
+
+  var list = jsonResponse['optimizedTasks'] as List;
+
+  if (list != null) {
+    return list.map((t) => Task.fromJson(t)).toList();
+  } else {
+    return [];
+  }
 }

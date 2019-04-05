@@ -6,6 +6,7 @@ import 'package:cerf_mobile/constants/colors.dart';
 import 'package:cerf_mobile/pages/NewTaskPage.dart';
 import 'package:cerf_mobile/pages/SettingsPage.dart';
 import 'package:cerf_mobile/services/tasks.dart';
+import 'package:cerf_mobile/services/user.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -52,6 +53,15 @@ class _SchedulePageState extends State<SchedulePage> {
     updateTasks();
   }
 
+  Widget buildListTile(Task item) {
+    return TaskListItem(item, context, updateStatus);
+  }
+
+  Widget buildExpandedTile(Task item) {
+    return ExpandableTaskListItem(
+        item, context, _currentTask == item.id, updateStatus);
+  }
+
   Future<void> updateTasks() {
     setState(() {
       _isLoading = true;
@@ -59,9 +69,11 @@ class _SchedulePageState extends State<SchedulePage> {
     return fetchTasks().then<void>((res) {
       setState(() {
         tasks = res;
+        // Set isStarted to false here if problem
         _isLoading = false;
       });
     }).catchError((e) {
+      // ? Check if error is not logged in on server, log out on mobile
       setState(() {
         _isLoading = false;
       });
@@ -70,40 +82,11 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
-  Future<void> initPlatformState() async {
-    Map<String, double> location;
-    try {
-      bool permission = await _location.hasPermission();
-      if (permission) {
-        // ? Error in starting on iOS, this function doesnt return
-        location = await _location.getLocation();
-      }
-    } on PlatformException catch (e) {
-      if (e.code == 'PERMISSION_DENIED') {
-        showSnackBarMessage(
-            'Permission denied for retrieving location, please enable it in settings');
-      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
-        // This logic statement doesn't seem to be reachable
-        print('Permission not asked for and not allowed yet');
-      }
-      location = null;
-    }
-
-    return;
-    // print(location);
-  }
-
-  // List<Task> filterTodo() {
-  //   tasksTodo = tasks
-  //       .where((task) => (task.status != "f" && task.status != "c"))
-  //       .toList();
-  //   return tasksTodo;
-  // }
-
   // Returns true if another valid task, false if no tasks to do
   bool getNextTask() {
     List<Task> todo = tasks
-        .where((task) => (task.status != "f" && task.status != "c"))
+        .where((task) =>
+            (task.status != "f" && task.status != "c" && task.status != "o"))
         .toList();
     if (todo.isNotEmpty) {
       setState(() {
@@ -137,21 +120,30 @@ class _SchedulePageState extends State<SchedulePage> {
 
   void updateStatus(Task task) async {
     // If update notes on task status changed
-    if (task.status != "a" && widget.options.updateNotes) {
+    if ((task.status == "f" || task.status == "c") &&
+        widget.options.updateNotes) {
       _dialogController.text = task.notes;
       await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
               title: Text("Update Notes"),
               content: TextField(
-                decoration: new InputDecoration(
+                decoration: InputDecoration(
                   hintText: "Enter updated notes for task",
                   border: OutlineInputBorder(),
                 ),
                 controller: _dialogController,
-                maxLines: 8,
+                maxLines: 12,
               ),
               actions: <Widget>[
+                FlatButton(
+                    child: Text('ONGOING'),
+                    onPressed: () {
+                      task.notes = _dialogController.text;
+                      task.status = "o";
+                      Navigator.of(context).pop();
+                    }),
                 FlatButton(
                     child: Text('SAVE'),
                     onPressed: () {
@@ -159,8 +151,8 @@ class _SchedulePageState extends State<SchedulePage> {
                       Navigator.of(context).pop();
                     }),
               ],
-            ),
-      );
+            );
+          });
     }
 
     // Update status on server
@@ -169,15 +161,6 @@ class _SchedulePageState extends State<SchedulePage> {
     });
     getNextTask();
     animateToCurrentTask(false);
-  }
-
-  Widget buildListTile(Task item) {
-    return TaskListItem(item, context, updateStatus);
-  }
-
-  Widget buildExpandedTile(Task item) {
-    return ExpandableTaskListItem(
-        item, context, _currentTask == item.id, updateStatus);
   }
 
   void _onReorder(int oldIndex, int newIndex) {
@@ -191,9 +174,33 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
+  Future<void> initPlatformState() async {
+    Map<String, double> location;
+    try {
+      bool permission = await _location.hasPermission();
+      if (permission) {
+        // ? Error in starting on iOS, this function doesnt return
+        location = await _location.getLocation();
+      }
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        showSnackBarMessage(
+            'Permission denied for retrieving location, please enable it in settings');
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        // This logic statement doesn't seem to be reachable
+        print('Permission not asked for and not allowed yet');
+      }
+      location = null;
+    }
+
+    _currentLocation = location;
+
+    return;
+  }
+
   void onStarted() async {
     // Changed to be async but check for location in function
-    initPlatformState();
+    await initPlatformState();
     if (!getNextTask()) {
       showSnackBarMessage("No tasks remaining to be completed today");
       return;
@@ -203,14 +210,30 @@ class _SchedulePageState extends State<SchedulePage> {
     if (_reordered) {
       // Update task order in database
       updateTaskOrder(tasks);
+      _reordered = false;
     }
-    
-    // ? Send started status to server
+
+    Map<String, dynamic> variables = {"isStarted": true};
+
+    if (_currentLocation != null) {
+      variables["lat"] = _currentLocation["latitude"];
+      variables["lng"] = _currentLocation["longitude"];
+    }
+
+    try {
+      await updateUser(variables);
+    } catch (err) {
+      showSnackBarMessage("Error in starting, code: $err");
+      return;
+    }
+
     setState(() {
       _locationSubscription =
           _location.onLocationChanged().listen((Map<String, double> result) {
         _currentLocation = result;
       });
+
+      // ? Create timer to send updated location to server every x seconds
       // Filter tasks
       // tasksTodo = filterTodo();
       // _currentTask = tasksTodo.isNotEmpty ? tasksTodo[0]?.id : "";
@@ -218,15 +241,37 @@ class _SchedulePageState extends State<SchedulePage> {
     });
   }
 
-  void onPaused() {
+  void onPaused() async {
+    try {
+      await updateUser({"isStarted": false});
+    } catch (err) {
+      showSnackBarMessage("Status failed to update, code: $err");
+    }
     setState(() {
       _locationSubscription.cancel();
       _isStarted = false;
     });
   }
 
-  onOptimize() {
-    // ? Set up optimization of tasks
+  void onOptimize() {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+    optimizeTasks(tasks).then<void>((res) {
+      setState(() {
+        tasks = res;
+        _reordered = true;
+        _isLoading = false;
+      });
+    }).catchError((e) {
+      setState(() {
+        _isLoading = false;
+      });
+      showSnackBarMessage("Error in optimizing tasks - \nError code: $e");
+    });
+
     return;
   }
 

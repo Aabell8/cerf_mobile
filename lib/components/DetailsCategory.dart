@@ -10,10 +10,9 @@ class DetailsCategory extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData themeData = Theme.of(context);
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 16.0),
+      padding: EdgeInsets.symmetric(vertical: 8.0),
       decoration: BoxDecoration(
-          border: Border(
-              bottom: BorderSide(color: themeData.dividerColor))),
+          border: Border(bottom: BorderSide(color: themeData.dividerColor))),
       child: DefaultTextStyle(
         style: Theme.of(context).textTheme.subhead,
         child: SafeArea(
@@ -21,13 +20,7 @@ class DetailsCategory extends StatelessWidget {
           bottom: false,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                  padding: EdgeInsets.symmetric(vertical: 24.0),
-                  width: 72.0,
-                  child: Icon(icon, color: themeData.primaryColor)),
-              Expanded(child: Column(children: children))
-            ],
+            children: <Widget>[Expanded(child: Column(children: children))],
           ),
         ),
       ),
