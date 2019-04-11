@@ -73,7 +73,6 @@ Widget _getAvatar(String status, BuildContext context) {
         backgroundColor: AppColors.blueAccent,
       ),
     );
-    
   }
 
   return ExcludeSemantics(
@@ -92,6 +91,7 @@ class TaskListItem extends Container {
           key: Key(item.id),
           margin: EdgeInsets.symmetric(horizontal: 4.0),
           child: Card(
+            elevation: 2.0,
             child: Container(
               child: ListTile(
                 dense: true,
@@ -109,7 +109,7 @@ class TaskListItem extends Container {
                 ),
                 subtitle: Text(
                   '${item.duration} minutes ${item.timeOfDayFormat()}\n'
-                  '${item.statusFormat()}',
+                      '${item.statusFormat()}',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -173,6 +173,7 @@ class ExpandableTaskListItem extends StatelessWidget {
         key: Key(task.id),
         opacity: expanded ? 1.0 : 0.4,
         child: Card(
+          elevation: expanded ? 8.0 : 1.0,
           child: Container(
             child: Column(
               children: <Widget>[
